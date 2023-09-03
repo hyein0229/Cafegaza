@@ -11,5 +11,5 @@ assignees: ''
 <!-- 이슈에 대한 설명을 작성하세요 -->
 
 ## To do
-- [] todo1
-- [] todo2
+- [ ] todo1
+- [ ] todo2
