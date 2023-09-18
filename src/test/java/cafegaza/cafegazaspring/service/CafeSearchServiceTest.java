@@ -1,16 +1,14 @@
 package cafegaza.cafegazaspring.service;
 
-import cafegaza.cafegazaspring.domain.Cafe;
-import cafegaza.cafegazaspring.dto.SearchKeywordlResDto;
+import cafegaza.cafegazaspring.controller.SearchQuery;
+import cafegaza.cafegazaspring.dto.KakaoSearchApiResDto;
+import cafegaza.cafegazaspring.dto.SearchCafeResponseDto;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
 public class CafeSearchServiceTest {
@@ -21,22 +19,23 @@ public class CafeSearchServiceTest {
     // 카카오 키워드로 장소 검색하기 rest api 호출 테스트
     @Test
     public void kakaoApiTest() throws Exception {
-        SearchKeywordlResDto searchKeywordlResDto = kakaoOpenApiManager.kakaomapSearchApi("합정역 카페");
+        KakaoSearchApiResDto searchKeywordlResDto = kakaoOpenApiManager.kakaomapSearchApi("합정역 카페");
         System.out.println(searchKeywordlResDto.getMeta().getSame_name().getKeyword());
         System.out.println(searchKeywordlResDto.getMeta().getSame_name().getSelected_region());
     }
 
+    /*
+        페이징을 사용한 키워드 카페 검색 테스트
+     */
     @Test
     public void searchCafeTest() throws Exception {
-        List<Cafe> searchResult = cafeSearchService.searchCafe("서초 이디야");
-        if (searchResult.isEmpty()) {
-            System.out.println("empty result");
-        } else{
-            System.out.println(searchResult.size());
-            searchResult.forEach(cafe -> {
-                System.out.println(cafe.getName() + " " + cafe.getRoadAddress());
-            });
-        }
+        Pageable pageable = PageRequest.of(0, 15);
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setKeyword("강남구 카페"); // 키워드 쿼리 지정
+        SearchCafeResponseDto searchCafeResponseDto = cafeSearchService.searchCafe(searchQuery, pageable);
+
+        Assertions.assertEquals(500, searchCafeResponseDto.getTotalElements()); // 강남구의 500개의 카페가 모두 검색되었는 지 확인
+        Assertions.assertEquals(15, searchCafeResponseDto.getContent().size()); // 15개의 목록만 가져왔는지 확인
 
     }
 
