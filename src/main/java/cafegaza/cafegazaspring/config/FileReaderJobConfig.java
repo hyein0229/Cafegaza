@@ -50,5 +50,4 @@ public class FileReaderJobConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
-
 }

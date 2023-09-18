@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SearchKeywordlResDto {
+public class KakaoSearchApiResDto {
     private List<Place> documents;
     private PlaceMeta meta;
 
