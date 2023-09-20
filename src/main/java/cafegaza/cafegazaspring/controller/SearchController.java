@@ -1,16 +1,17 @@
 package cafegaza.cafegazaspring.controller;
 
 import cafegaza.cafegazaspring.domain.Cafe;
+import cafegaza.cafegazaspring.dto.SearchCafeResponseDto;
 import cafegaza.cafegazaspring.service.CafeSearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -24,7 +25,6 @@ public class SearchController {
      */
     @GetMapping("/map")
     public String openMapMode(Model model){
-
         return "map";
     }
 
@@ -33,8 +33,8 @@ public class SearchController {
      */
     @ResponseBody // rest api
     @PostMapping("/map/search")
-    public ResponseEntity<List<Cafe>> searchCafe(@RequestBody SearchQuery searchQuery) throws Exception{
-        List<Cafe> searchResult = cafeSearchService.searchCafe(searchQuery.getKeyword()); // 현재는 키워드로만 검색 가능
-        return new ResponseEntity<>(searchResult, HttpStatus.OK);
+    public ResponseEntity<SearchCafeResponseDto> searchCafe(@RequestBody SearchQuery searchQuery, Pageable pageable) throws Exception{
+        SearchCafeResponseDto searchCafeResponseDto = cafeSearchService.searchCafe(searchQuery, pageable); // 검색 응답 dto 반환
+        return new ResponseEntity<>(searchCafeResponseDto, HttpStatus.OK);
     }
 }
