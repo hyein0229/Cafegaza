@@ -69,6 +69,7 @@
     var markers = [];
     var places = {}; // key: 페이지 번호 value: 해당 페이지 카페 목록
     var keyword;
+    var menuOption = '아메리카노';
 
     var mapContainer = document.getElementById('map'), // 지도를 표시할 div
         mapOption = {
@@ -98,13 +99,15 @@
         searchApi(0);
     }
 
+    // api 호출하여 현재 페이지에 해당하는 카페 데이터 요청
     function searchApi(pageNum) {
 
         $.ajax({
 
-            url: '/map/search?page=' + pageNum + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
+            url: '/search?page=' + pageNum + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
             data: JSON.stringify({ // 질의어
-                'keyword' : keyword
+                'keyword' : keyword,
+                'menuOption': menuOption,
             }),
             type: 'post',
             async : false, // 응답받은 결과를 전역변수에 저장하기 위해
