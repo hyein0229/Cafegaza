@@ -1,10 +1,10 @@
 package cafegaza.cafegazaspring.domain;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -35,6 +35,12 @@ public class Cafe extends BaseTime {
 
     private double y; // 위도
 
+    @OneToMany(mappedBy = "cafe", cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private List<Review> reviews = new ArrayList<>(); // 카페 리뷰 목록
 
+    @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Menu> menus = new ArrayList<>(); // 메뉴
 
 }
