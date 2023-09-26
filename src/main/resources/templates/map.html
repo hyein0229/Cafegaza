@@ -53,6 +53,7 @@
                 <form onsubmit="searchPlaces(); return false;">
                     <input type="text" value="서울 카페" id="keyword" size="25">
                     <button type="submit">검색하기</button>
+                    <input type="text" value="" id="menuOption" size="25">
                 </form>
             </div>
         </div>
@@ -69,7 +70,7 @@
     var markers = [];
     var places = {}; // key: 페이지 번호 value: 해당 페이지 카페 목록
     var keyword;
-    var menuOption = '아메리카노';
+    var menuOption;
 
     var mapContainer = document.getElementById('map'), // 지도를 표시할 div
         mapOption = {
@@ -89,6 +90,7 @@
     function searchPlaces() {
 
         keyword = document.getElementById('keyword').value;
+        menuOption = document.getElementById('menuOption').value; // 값이 없으면 빈문자열 상태
 
         if (!keyword.replace(/^\s+|\s+$/g, '')) {
             alert('키워드를 입력해주세요!');
