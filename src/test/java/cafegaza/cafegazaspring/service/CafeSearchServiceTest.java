@@ -44,9 +44,12 @@ public class CafeSearchServiceTest {
         SearchQuery searchQuery = new SearchQuery();
         searchQuery.setKeyword("강남구 카페"); // 키워드 쿼리 지정
         searchQuery.setMenuOption("");
+        searchQuery.setMaxPrice(0);
 
         Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable);
 
+//        System.out.println(searchCafe.getTotalElements());
+//        System.out.println(searchCafe.getContent().size());
         Assertions.assertEquals(500, searchCafe.getTotalElements()); // 강남구의 500개의 카페가 모두 검색되었는 지 확인
         Assertions.assertEquals(15, searchCafe.getContent().size()); // 15개의 목록만 가져왔는지 확인
 
@@ -59,8 +62,9 @@ public class CafeSearchServiceTest {
     public void findByRegionAndMenuTest() throws Exception {
         Pageable pageable = PageRequest.of(1, 15);
         SearchQuery searchQuery = new SearchQuery();
-        searchQuery.setKeyword("마포 카페"); // 키워드 쿼리 지정
+        searchQuery.setKeyword("서울 카페"); // 키워드 쿼리 지정
         searchQuery.setMenuOption("아메리카노");
+        searchQuery.setMaxPrice(0);
 
         Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
 
@@ -80,6 +84,7 @@ public class CafeSearchServiceTest {
         SearchQuery searchQuery = new SearchQuery();
         searchQuery.setKeyword("강남 스타벅스"); // 키워드 쿼리 지정
         searchQuery.setMenuOption("");
+        searchQuery.setMaxPrice(0);
 
         Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable);
 
@@ -122,6 +127,28 @@ public class CafeSearchServiceTest {
             Assertions.assertEquals(true, cafe.getName().contains("스타벅스"));
         }
         System.out.println("totalElements: " + searchCafe.getTotalElements());
+
+    }
+
+    /*
+        지역명 + 메뉴 + 가격 옵션
+     */
+    @Test
+    public void fineByPriceOption() throws Exception {
+        Pageable pageable = PageRequest.of(1, 15);
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setKeyword("서울 카페"); // 키워드 쿼리 지정
+        searchQuery.setMenuOption("아메리카노");
+        searchQuery.setMaxPrice(7000); // maxPrice -> 7000원으로 설정
+
+        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
+
+        for(Cafe cafe : searchCafe) {
+            List<Menu> menus = menuRepository.findByCafe(cafe);
+            Assertions.assertEquals(true, !menus.stream().filter(menu -> menu.getMenuName().contains("아메리카노")).toList().isEmpty());
+        }
+
+        Assertions.assertEquals(5493, searchCafe.getTotalElements()); // 직접 쿼리했을 때 나온 결과와 같은지 확인
 
     }
 
