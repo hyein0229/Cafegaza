@@ -22,10 +22,12 @@ public class CafeDto {
     private String detailUrl;
     private double x;
     private double y;
+    private int bookmarkCount;
 
     //-- dto -> entity 변환 메소드 --//
     public Cafe toEntity() {
         return Cafe.builder()
+                .cafeId(id)
                 .name(name)
                 .roadAddress(roadAddress)
                 .address(address)
@@ -34,6 +36,7 @@ public class CafeDto {
                 .cafeImageUrl(cafeImageUrl)
                 .detailUrl(detailUrl)
                 .x(x).y(y)
+                .bookmarkCount(bookmarkCount)
                 .build();
     }
 
@@ -49,6 +52,7 @@ public class CafeDto {
                 .cafeImageUrl(cafe.getCafeImageUrl())
                 .detailUrl(cafe.getDetailUrl())
                 .x(cafe.getX()).y(cafe.getY())
+                .bookmarkCount(cafe.getBookmarkCount())
                 .build();
     }
 

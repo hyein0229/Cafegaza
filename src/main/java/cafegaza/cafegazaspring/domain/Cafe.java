@@ -1,10 +1,8 @@
 package cafegaza.cafegazaspring.domain;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Builder
@@ -35,6 +33,6 @@ public class Cafe extends BaseTime {
 
     private double y; // 위도
 
-
-
+    @ColumnDefault("0") // 0으로 초기화
+    private int bookmarkCount; // 즐겨찾기 개수
 }
