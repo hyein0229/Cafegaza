@@ -3,15 +3,14 @@ package cafegaza.cafegazaspring.repository;
 import cafegaza.cafegazaspring.controller.SearchQuery;
 import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.QMenu;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberTemplate;
-import com.querydsl.core.types.dsl.StringTemplate;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
@@ -32,25 +31,45 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
     public Page<Cafe> findByMultipleCond(String region, String keyword, double[] centerCoord, SearchQuery searchQuery, Pageable pageable) {
 
         List<Cafe> cafeList =  queryFactory
-                .select(cafe)
-                .from(cafe).distinct()
+                .select(cafe).distinct()
+                .from(cafe)
                 .leftJoin(menu).on(cafe.eq(menu.cafe))
                 .where(regionContain(region)
                         , withinRadius(centerCoord)
                         , keywordContain(keyword)
                         , menuContain(searchQuery.getMenuOption()))
+                .groupBy(cafe.cafeId)
+                .having(priceLowerThan(searchQuery.getMaxPrice()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
+
         // 페이징을 적용하지 않은 전체 결과의 크기 쿼리
-        JPAQuery<Long> count = queryFactory
-                .select(cafe.countDistinct()) // count()-> 중복 제거가 안됨 countDistinct 로 pk 중복을 제거
+//        JPAQuery<Long> count = queryFactory
+//                .select(cafe.cafeId.countDistinct()) // count()-> 중복 제거가 안됨 countDistinct 로 pk 중복을 제거
+//                .from(cafe)
+//                .leftJoin(menu).on(cafe.eq(menu.cafe))
+//                .where(regionContain(region), withinRadius(centerCoord), keywordContain(keyword), menuContain(searchQuery.getMenuOption()))
+//                .groupBy(cafe.cafeId)
+//                .having(priceLowerThan(searchQuery.getMaxPrice()));
+
+        //        return PageableExecutionUtils.getPage(cafeList, pageable, count::fetchOne);
+
+        // group by 추가 이후 countDistinct() 에서 totalElements 수가 맞게 찾아지지 않는 오류 발생, 아직 해결하지 못함
+        // 대신 count() 를 사용했을 땐 fetchOne 에서 NonUniqueResultException 에러 발생 -> 이것도 이유를 아직 못찾음
+        // fetch().size() 를 사용한 int 타입의 count 값을 구하여 페이징에 사용할 수 있도록 일단 PageImpl 리턴 방식으로 변경
+
+        int totalCount = queryFactory
+                .select(cafe).distinct() // count()-> 중복 제거가 안됨 countDistinct 로 pk 중복을 제거
                 .from(cafe)
                 .leftJoin(menu).on(cafe.eq(menu.cafe))
-                .where(regionContain(region), withinRadius(centerCoord), keywordContain(keyword), menuContain(searchQuery.getMenuOption()));
+                .where(regionContain(region), withinRadius(centerCoord), keywordContain(keyword), menuContain(searchQuery.getMenuOption()))
+                .groupBy(cafe.cafeId)
+                .having(priceLowerThan(searchQuery.getMaxPrice()))
+                .fetch().size();
 
-        return PageableExecutionUtils.getPage(cafeList, pageable, count::fetchOne);
+        return new PageImpl<Cafe>(cafeList, pageable, totalCount);
     }
 
     // 행정구역명으로 찾기
@@ -75,5 +94,13 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
     // 특정 메뉴가 있는 카페 찾기
     private BooleanExpression menuContain(String menuName) {
         return menuName.isEmpty() ? null : menu.menuName.contains(menuName);
+    }
+
+    private BooleanExpression priceLowerThan(int maxPrice) {
+        if(maxPrice == 0) {
+            return null;
+        }
+        NumberExpression<Double> priceAvg = menu.price.avg();
+        return priceAvg.gt(0).and(priceAvg.lt(maxPrice));
     }
 }
