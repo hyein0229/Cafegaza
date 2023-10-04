@@ -9,17 +9,15 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 @Configuration
 @RequiredArgsConstructor
-public class CsvWriter implements ItemWriter<CafeDto> {
+public class CsvCafeWriter implements ItemWriter<CafeDto> {
 
     private final CafeRepository cafeRepository;
 
-    /*
+    /**
         DB 에 쓰기
      */
     @Override
@@ -46,6 +44,5 @@ public class CsvWriter implements ItemWriter<CafeDto> {
             cafeList.add(cafe);
         });
         cafeRepository.saveAll(new ArrayList<Cafe>(cafeList)); // DB 저장
-
     }
 }

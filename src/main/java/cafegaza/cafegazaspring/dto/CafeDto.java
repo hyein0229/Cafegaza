@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 @Builder
 @Data
@@ -26,6 +27,7 @@ public class CafeDto {
     //-- dto -> entity 변환 메소드 --//
     public Cafe toEntity() {
         return Cafe.builder()
+                .cafeId(id)
                 .name(name)
                 .roadAddress(roadAddress)
                 .address(address)
@@ -51,5 +53,12 @@ public class CafeDto {
                 .x(cafe.getX()).y(cafe.getY())
                 .build();
     }
+
+    // Page<Entity> -> Page<Dto> 변환
+    public Page<CafeDto> toDtoList(Page<Cafe> cafes) {
+        return cafes.map(cafe -> toDto(cafe));
+    }
+
+
 
 }
