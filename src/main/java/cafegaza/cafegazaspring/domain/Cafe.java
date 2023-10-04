@@ -2,6 +2,7 @@ package cafegaza.cafegazaspring.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,8 @@ public class Cafe extends BaseTime {
 
     private double y; // 위도
 
+    @ColumnDefault("0") // 0으로 초기화
+    private int bookmarkCount; // 즐겨찾기 개수
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.REMOVE)
     @Builder.Default
     private List<Review> reviews = new ArrayList<>(); // 카페 리뷰 목록
