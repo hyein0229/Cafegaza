@@ -109,7 +109,7 @@
             url: '/search?page=' + pageNum + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
             data: JSON.stringify({ // 질의어
                 'keyword' : keyword,
-                'menuOption': menuOption,
+                'menuOption' : menuOption
             }),
             type: 'post',
             async : false, // 응답받은 결과를 전역변수에 저장하기 위해
