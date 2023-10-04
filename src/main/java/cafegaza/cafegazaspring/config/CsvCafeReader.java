@@ -15,13 +15,13 @@ import org.springframework.core.io.Resource;
 
 @Configuration
 @RequiredArgsConstructor
-public class CsvReader {
+public class CsvCafeReader {
 
     // 파일 대상
     @Value("classpath*:/dataset/*.csv")
     private Resource[] inputFiles;
 
-    /*
+    /**
        카페 정보 파일 읽기
      */
     @Bean
@@ -51,11 +51,11 @@ public class CsvReader {
 
     }
 
-    /*
+    /**
         여러개의 파일 읽어들이기 위한 함수
      */
     @Bean
-    public MultiResourceItemReader<CafeDto> multiResourceItemReader() {
+    public MultiResourceItemReader<CafeDto> multiResourceCafeReader() {
         MultiResourceItemReader<CafeDto> reader = new MultiResourceItemReader<>();
         reader.setDelegate(csvCafeInfoReader()); // 읽기 수행할 reader 지정
         reader.setResources(inputFiles);

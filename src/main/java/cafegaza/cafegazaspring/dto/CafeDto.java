@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 @Builder
 @Data
@@ -55,5 +56,12 @@ public class CafeDto {
                 .bookmarkCount(cafe.getBookmarkCount())
                 .build();
     }
+
+    // Page<Entity> -> Page<Dto> 변환
+    public Page<CafeDto> toDtoList(Page<Cafe> cafes) {
+        return cafes.map(cafe -> toDto(cafe));
+    }
+
+
 
 }

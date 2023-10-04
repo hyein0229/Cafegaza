@@ -16,7 +16,7 @@ public class KakaoOpenApiManager {
     private String restApiKey;
     private String API_SERVER_URL = "https://dapi.kakao.com/v2/local/search/keyword.json";
 
-    /*
+    /**
         카카오맵 키워드로 장소 검색하기 rest api 호출
      */
     public KakaoSearchApiResDto kakaomapSearchApi(String query) throws Exception {
