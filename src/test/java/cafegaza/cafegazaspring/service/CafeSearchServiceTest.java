@@ -3,20 +3,19 @@ package cafegaza.cafegazaspring.service;
 import cafegaza.cafegazaspring.controller.SearchQuery;
 import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.Menu;
+import cafegaza.cafegazaspring.domain.OpenHour;
 import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.dto.KakaoSearchApiResDto;
 import cafegaza.cafegazaspring.repository.CafeRepository;
 import cafegaza.cafegazaspring.repository.MenuRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.file.LineMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -149,7 +148,28 @@ public class CafeSearchServiceTest {
         }
 
         Assertions.assertEquals(5493, searchCafe.getTotalElements()); // 직접 쿼리했을 때 나온 결과와 같은지 확인
+    }
 
+    @Test
+    public void findByOpenHour() throws Exception {
+
+        Pageable pageable = PageRequest.of(0, 15);
+        SearchQuery searchQuery = new SearchQuery();
+        searchQuery.setKeyword("서울 카페"); // 키워드 쿼리 지정
+        searchQuery.setMenuOption("");
+        searchQuery.setMaxPrice(0);
+        searchQuery.setStartHour(780);
+        searchQuery.setEndHour(840);
+
+        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
+
+        for(Cafe cafe : searchCafe) {
+            List<OpenHour> openHourList = cafe.getOpenHourList();
+            for(OpenHour openHour : openHourList) {
+                Assertions.assertEquals(true, openHour.getStartTime() <= 780 && openHour.getEndTime() >= 840);
+            }
+        }
+        System.out.println(searchCafe.getTotalElements());
     }
 
 }
