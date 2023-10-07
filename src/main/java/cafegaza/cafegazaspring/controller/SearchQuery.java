@@ -10,7 +10,7 @@ public class SearchQuery {
     private String keyword; // 검색 키워드
     private String menuOption; // 메뉴 이름 검색
     private int maxPrice = 0; // 가격 옵션
-    /*
-        차후에 옵션에 대한 필드 추가 필요
-     */
+    // 영업 시간
+    private int startHour;
+    private int endHour;
 }
