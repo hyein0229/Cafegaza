@@ -38,3 +38,5 @@ out/
 
 .gitmessage.txt
 src/main/resources/application-API-KEY.properties
+/src/main/resources/application.yml
+/src/main/resources/mail.properties
