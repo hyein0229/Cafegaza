@@ -20,6 +20,7 @@ public class FileReaderJobConfig extends DefaultBatchConfiguration {
     private final CsvCafeWriter csvCafeWriter;
     private final CsvMenuReader csvMenuReader;
     private final CsvMenuWriter csvMenuWriter;
+    private final OpenHourWriteTasklet openHourWriteTasklet;
     private final PlatformTransactionManager transactionManager;
 
     private static final int chunkSize = 500; // 한번에 처리할 데이터 행 사이즈
@@ -29,9 +30,10 @@ public class FileReaderJobConfig extends DefaultBatchConfiguration {
         job 은 하나의 배치 작업 단위, 여러 step을 가짐
      */
     @Bean
-    public Job csvFileCafeReaderJob(JobRepository jobRepository, Step csvFileCafeReaderStep) {
+    public Job csvFileCafeReaderJob(JobRepository jobRepository, Step csvFileCafeReaderStep, Step openHourWriteStep) {
         return new JobBuilder("csvFileCafeReaderJob", jobRepository)
-                .start(csvFileCafeReaderStep) // step 지정
+                .start(csvFileCafeReaderStep) // step1: 카페 정보 엔티티 저장
+                .next(openHourWriteStep) // step2: 영업 시간 엔티티 저장
                 .build();
     }
 
@@ -69,6 +71,14 @@ public class FileReaderJobConfig extends DefaultBatchConfiguration {
                 .writer(csvMenuWriter)
                 //.allowStartIfComplete(true) // 이미 completed 된 step 도 재실행하기 위해서 추가
                 .build();
+    }
+
+    @Bean
+    public Step openHourWriteStep(JobRepository jobRepository) {
+         return new StepBuilder("openHourWriteStep", jobRepository)
+                 .tasklet(openHourWriteTasklet, transactionManager)
+                 .allowStartIfComplete(true)
+                 .build();
     }
 
 
