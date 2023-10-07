@@ -24,6 +24,8 @@ public class QCafe extends EntityPathBase<Cafe> {
 
     public final StringPath address = createString("address");
 
+    public final NumberPath<Integer> bookmarkCount = createNumber("bookmarkCount", Integer.class);
+
     public final NumberPath<Long> cafeId = createNumber("cafeId", Long.class);
 
     public final StringPath cafeImageUrl = createString("cafeImageUrl");
@@ -39,6 +41,8 @@ public class QCafe extends EntityPathBase<Cafe> {
     public final DateTimePath<java.time.LocalDateTime> modifiedDate = _super.modifiedDate;
 
     public final StringPath name = createString("name");
+
+    public final ListPath<OpenHour, QOpenHour> openHourList = this.<OpenHour, QOpenHour>createList("openHourList", OpenHour.class, QOpenHour.class, PathInits.DIRECT2);
 
     public final StringPath openHours = createString("openHours");
 

@@ -3,6 +3,7 @@ package cafegaza.cafegazaspring.repository;
 import cafegaza.cafegazaspring.controller.SearchQuery;
 import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.QMenu;
+import cafegaza.cafegazaspring.domain.QOpenHour;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.*;
@@ -23,6 +24,7 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
     QMenu menu = QMenu.menu;
+    QOpenHour openHour = QOpenHour.openHour;
 
     /**
      * 다중 조건으로 카페 검색하기
@@ -34,10 +36,12 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                 .select(cafe).distinct()
                 .from(cafe)
                 .leftJoin(menu).on(cafe.eq(menu.cafe))
+                .leftJoin(openHour).on(cafe.eq(openHour.cafe))
                 .where(regionContain(region)
                         , withinRadius(centerCoord)
                         , keywordContain(keyword)
-                        , menuContain(searchQuery.getMenuOption()))
+                        , menuContain(searchQuery.getMenuOption())
+                        , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour()))
                 .groupBy(cafe.cafeId)
                 .having(priceLowerThan(searchQuery.getMaxPrice()))
                 .offset(pageable.getOffset())
@@ -64,7 +68,12 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                 .select(cafe).distinct() // count()-> 중복 제거가 안됨 countDistinct 로 pk 중복을 제거
                 .from(cafe)
                 .leftJoin(menu).on(cafe.eq(menu.cafe))
-                .where(regionContain(region), withinRadius(centerCoord), keywordContain(keyword), menuContain(searchQuery.getMenuOption()))
+                .leftJoin(openHour).on(cafe.eq(openHour.cafe))
+                .where(regionContain(region)
+                        , withinRadius(centerCoord)
+                        , keywordContain(keyword)
+                        , menuContain(searchQuery.getMenuOption())
+                        , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour()))
                 .groupBy(cafe.cafeId)
                 .having(priceLowerThan(searchQuery.getMaxPrice()))
                 .fetch().size();
@@ -87,15 +96,18 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
 
         return distance.lt(1);
     }
+
     // 특정 키워드명(카페명)으로 찾기
     private BooleanExpression keywordContain(String keyword) {
         return keyword.isEmpty() ? null : cafe.name.contains(keyword);
     }
+
     // 특정 메뉴가 있는 카페 찾기
     private BooleanExpression menuContain(String menuName) {
         return menuName.isEmpty() ? null : menu.menuName.contains(menuName);
     }
 
+    // 평균 가격이 더 낮은 카페 찾기
     private BooleanExpression priceLowerThan(int maxPrice) {
         if(maxPrice == 0) {
             return null;
@@ -103,4 +115,13 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
         NumberExpression<Double> priceAvg = menu.price.avg();
         return priceAvg.gt(0).and(priceAvg.lt(maxPrice));
     }
+
+    // start ~ end 시간 사이에 영업 중인 카페 찾기
+    private BooleanExpression openHourCompare(int startHour, int endHour) {
+        if(startHour == 0 && endHour == 0) {
+            return null;
+        }
+        return openHour.startTime.lt(startHour).and(openHour.endTime.gt(endHour));
+    }
+
 }

@@ -23,7 +23,6 @@ import static cafegaza.cafegazaspring.domain.QCafe.cafe;
 public class CafeSearchService {
 
     private final CafeRepository cafeRepository;
-    private final MenuRepository menuRepository;
     private final KakaoOpenApiManager kakaoOpenApiManager;
 
     /**
