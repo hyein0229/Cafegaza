@@ -22,14 +22,15 @@ public class OpenHourWriteTasklet implements Tasklet {
     private Map<String, OpenHour> openHourMap = new HashMap<>();
     private List<String> days = Arrays.asList("월", "화", "수", "목", "금", "토", "일");
 
+    /**
+     * 문자열 영업 시간을 요일 별로 파싱하여 OpenHour 엔티티 생성 및 저장
+     */
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         List<OpenHour> openHourList = new ArrayList<>(); // 생성된 영업 시간 엔티티 리스트
         List<Cafe> cafeList = cafeRepository.findAll(); // 저장한 카페 가져오기
-        System.out.println(cafeList.size());
-
-        List<String> range = new ArrayList<>();
+        List<String> range = new ArrayList<>(); // 요일 범위
 
         cafeList.forEach(cafe -> {
             String strOpenHours = cafe.getOpenHours().replaceAll(" ", ""); // 문자열 형태의 영업 시간 형식
@@ -37,15 +38,15 @@ public class OpenHourWriteTasklet implements Tasklet {
                 return;
             }
 
-            int startTime = -1;
-            int endTime = -1;
-            boolean breakTime = false;
+            int startTime = -1; // 시작 시간
+            int endTime = -1; // 종료 시간
+            boolean breakTime = false; // 브레이크 타임 유무
 
             int i = 0;
             while(i < strOpenHours.length()) {
 
                 try{
-                    if(days.contains(strOpenHours.substring(i, i+1))) { // 특정 요일
+                    if(days.contains(strOpenHours.substring(i, i+1))) { // 특정 요일 (월, 화, 수, 목, 금, 토, 일) 해당하면
                         range.add(strOpenHours.substring(i, i+1));
                         i++;
 
@@ -53,27 +54,27 @@ public class OpenHourWriteTasklet implements Tasklet {
                         range.addAll(days);
                         i += 2;
 
-                    } else if(Character.isDigit(strOpenHours.charAt(i)) && strOpenHours.substring(i, i+11).contains("~")) { // 숫자 -> 시작 시간 ~ 종료 시간
+                    } else if(Character.isDigit(strOpenHours.charAt(i)) && strOpenHours.substring(i, i+11).contains("~")) { // 시작, 종료 시간 형식 -> HH:mm~HH:mm
                         String[] startAndEnd = strOpenHours.substring(i, i+11).split("~");
                         if(startAndEnd.length == 2) {
-                            startTime = getIntegerTime(startAndEnd[0]);
-                            endTime = getIntegerTime(startAndEnd[1]);
+                            startTime = getIntegerTime(startAndEnd[0]); // 시작 시간
+                            endTime = getIntegerTime(startAndEnd[1]); // 종료 시간
                         }
                         if(startTime != -1 && endTime != -1 && !range.isEmpty()) {
-                            if (!breakTime) {
+                            if (!breakTime) { // 브레이크 타임이 아니면 새로운 OpenHour 엔티티 생성
                                 createEntity(cafe, range, startTime, endTime);
                             } else {
-                                setBreakTime(range, startTime, endTime);
+                                setBreakTime(range, startTime, endTime); // 브레이크 타임 설정
                                 breakTime = false;
                             }
                             range.clear();
                             i += 11;
                         }
 
-                    } else if(strOpenHours.charAt(i) == '~' && !range.isEmpty()) { // 시작 요일 ~ 끝 요일
+                    } else if(strOpenHours.charAt(i) == '~' && !range.isEmpty()) { // 요일 ~ 요일 형식 (ex 월~금)
                         int startIndex = days.indexOf(range.get(range.size()-1));
                         int endIndex = days.indexOf(strOpenHours.substring(i+1, i+2));
-                        for (int j = startIndex+1; j <= endIndex; j++) {
+                        for (int j = startIndex+1; j <= endIndex; j++) { // 포함되는 요일 모두 삽입
                             range.add(days.get(j));
                         }
                         i += 2;
@@ -85,12 +86,13 @@ public class OpenHourWriteTasklet implements Tasklet {
                     } else {
                         i++;
                     }
+
                 }catch (Exception ex) {
                     System.out.println(cafe.getCafeId() + " " + strOpenHours +" 예외 발생");
                     i++;
                 }
             }
-
+            // 생성된 OpenHour 엔티티를 리스트에 삽입
             for (String day : openHourMap.keySet()) {
                 openHourList.add(openHourMap.get(day));
             }
@@ -127,7 +129,7 @@ public class OpenHourWriteTasklet implements Tasklet {
             if(hourAndMinute.length == 2) {
                 int h = Integer.parseInt(hourAndMinute[0]);
                 int m = Integer.parseInt(hourAndMinute[1]);
-                result = 60 * h + m;
+                result = 60 * h + m; // HH:mm -> 분단위로 변환하여 저장
             }
             return result;
         }catch (Exception ex){

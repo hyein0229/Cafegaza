@@ -73,11 +73,14 @@ public class FileReaderJobConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
+    /**
+     * 영업 시간 엔티티 저장 step
+     */
     @Bean
     public Step openHourWriteStep(JobRepository jobRepository) {
          return new StepBuilder("openHourWriteStep", jobRepository)
                  .tasklet(openHourWriteTasklet, transactionManager)
-                 .allowStartIfComplete(true)
+                 //.allowStartIfComplete(true)
                  .build();
     }
 
