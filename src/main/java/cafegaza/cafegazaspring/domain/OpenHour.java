@@ -35,6 +35,7 @@ public class OpenHour extends BaseTime {
         cafe.getOpenHourList().add(this);
     }
 
+    // OpenHour 엔티티 생성 메소드
     public static OpenHour setOpenHour(Cafe cafe, String day, int startTime, int endTime) {
         OpenHour openHour = OpenHour.builder()
                 .day(day)
@@ -45,6 +46,7 @@ public class OpenHour extends BaseTime {
         return openHour;
     }
 
+    //-- 브레이크 타임 설정 --//
     public void setBreakStart(int breakStart) {
         this.breakStart = breakStart;
     }
