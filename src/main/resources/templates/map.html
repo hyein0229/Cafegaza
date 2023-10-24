@@ -51,7 +51,7 @@
         <div class="option">
             <div>
                 <form onsubmit="searchPlaces(); return false;">
-                    <input type="text" value="서울 카페" id="keyword" size="25">
+                    <input type="text" value="카페를 검색하세요." id="keyword" size="25">
                     <button type="submit">검색하기</button>
                     <input type="text" value="" id="menuOption" size="25">
                 </form>
@@ -84,7 +84,7 @@
     // 검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
     var infowindow = new kakao.maps.InfoWindow({zIndex:1});
 
-    searchPlaces();
+    //searchPlaces();
 
     // 새 키워드로 검색을 요청하는 함수입니다
     function searchPlaces() {
