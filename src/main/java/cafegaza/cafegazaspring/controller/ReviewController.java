@@ -1,21 +1,23 @@
 package cafegaza.cafegazaspring.controller;
 
+import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.Review;
 import cafegaza.cafegazaspring.domain.uploadFile.ReviewImage;
+import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.dto.ReviewDto;
+import cafegaza.cafegazaspring.service.CafeSearchService;
 import cafegaza.cafegazaspring.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -27,6 +29,7 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final CafeSearchService cafeSearchService;
 
     /**
         해당 페이지의 리뷰 목록 가져오기
@@ -38,11 +41,28 @@ public class ReviewController {
     }
 
     /**
+      가게 리뷰 사진 가져오기
+     */
+    @ResponseBody
+    @GetMapping("/reviewImage/{cafeId}") // ?page=0&size=15
+    public Page<String> getReviewImages(@PathVariable("cafeId") Long cafeId, Pageable pageable) {
+        return cafeSearchService.getImages(cafeId, pageable);
+    }
+
+
+
+    /**
         리뷰 작성을 위한 폼 가져오기
      */
-    @GetMapping("/review/{cafeId}/new")
-    public String createReviewForm(@PathVariable("cafeId") Long cafeId, Model model) { // 작성자 정보도 필요
+    @GetMapping("/review/new")
+    public String createReviewForm(@SessionAttribute(name = "sessionId", required = false) Long memberId, @RequestParam(value="id") Long cafeId, Model model) { // 작성자 정보도 필요
 
+        if(memberId != null) {
+            model.addAttribute("member", memberId);
+        }
+        String cafeName = cafeSearchService.findById(cafeId).getName();
+        model.addAttribute("cafeId", cafeId);
+        model.addAttribute("cafeName", cafeName);
         model.addAttribute("reviewForm", new ReviewForm());
         return "createReviewForm";
 
@@ -51,19 +71,12 @@ public class ReviewController {
     /**
         작성된 리뷰 폼을 받아 리뷰 생성
      */
+    @ResponseBody
     @PostMapping("/review/{cafeId}/new")
-    public String createReview(@PathVariable("cafeId") Long cafeId, @Valid ReviewForm reviewForm, BindingResult result) throws Exception { // 작성자 정보도 필요
-
-        if (result.hasErrors()) {
-            List<ObjectError> list =  result.getAllErrors();
-            for(ObjectError e : list) {
-                System.out.println(e.getDefaultMessage());
-            }
-            return "createReviewForm";
-        }
+    public ResponseEntity createReview(@PathVariable("cafeId") Long cafeId, ReviewForm reviewForm) throws Exception { // 작성자 정보도 필요System.out.println("test");
 
         reviewService.create(cafeId, reviewForm);
-        return "redirect:/";
+        return new ResponseEntity<>(HttpStatus.OK); // 성공적으로 요청 처리됨
     }
 
     /**
