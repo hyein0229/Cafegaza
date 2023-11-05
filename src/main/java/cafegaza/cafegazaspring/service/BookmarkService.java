@@ -1,6 +1,8 @@
 package cafegaza.cafegazaspring.service;
 
 import cafegaza.cafegazaspring.domain.Bookmark;
+import cafegaza.cafegazaspring.domain.Cafe;
+import cafegaza.cafegazaspring.domain.Member;
 import cafegaza.cafegazaspring.dto.BookmarkDto;
 import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.dto.MemberDto;
@@ -29,18 +31,18 @@ public class BookmarkService {
     /*
         즐겨찾기 추가
      */
-    public boolean addBookmark(CafeDto cafe, MemberDto member) {
-        cafeRepository.findById(cafe.getId()).orElseThrow(
+    public boolean addBookmark(Long cafeId, Long memberId) {
+        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]카페를 찾을 수 없습니다."));
-        memberRepository.findById(member.getId()).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]사용자를 찾을 수 없습니다."));
 
         // 즐겨찾기가 되어있지 않다면, 즐겨찾기 추가 실시
-        if(bookmarkRepository.findByCafeAndMember(cafe.toEntity(), member.toEntity()) == null) {
-            cafeRepository.updateBookmarkCountForAdd(cafe.getId());
+        if(bookmarkRepository.findByCafeAndMember(cafe, member) == null) {
+            cafeRepository.updateBookmarkCountForAdd(cafe.getCafeId());
 
             BookmarkDto bookmarkDto = new BookmarkDto();
-            bookmarkDto.setCafe(cafe); bookmarkDto.setMember(member);
+            bookmarkDto.setCafe(CafeDto.toDto(cafe)); bookmarkDto.setMember(MemberDto.toDto(member));
             bookmarkRepository.save(bookmarkDto.toEntity());
 
             return true;
