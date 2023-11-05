@@ -2,11 +2,12 @@ package cafegaza.cafegazaspring.service;
 
 import cafegaza.cafegazaspring.controller.SearchQuery;
 import cafegaza.cafegazaspring.domain.Cafe;
-import cafegaza.cafegazaspring.domain.Menu;
+import cafegaza.cafegazaspring.domain.OpenHour;
 import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.dto.KakaoSearchApiResDto;
 import cafegaza.cafegazaspring.repository.CafeRepository;
-import cafegaza.cafegazaspring.repository.MenuRepository;
+import cafegaza.cafegazaspring.repository.OpenHourRepository;
+import cafegaza.cafegazaspring.repository.ReviewImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,9 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
-
-import static cafegaza.cafegazaspring.domain.QCafe.cafe;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class CafeSearchService {
 
     private final CafeRepository cafeRepository;
     private final KakaoOpenApiManager kakaoOpenApiManager;
+    private final ReviewImageRepository reviewImageRepository;
 
     /**
      *사용자가 입력한 질의어로 카페 검색
@@ -99,5 +103,43 @@ public class CafeSearchService {
         List<Cafe> pageContent = cafeList.subList(start, end); // 해당 페이지 번호에 해당하는 카페 목록
         return new PageImpl<>(pageContent, pageRequest, cafeList.size()); // Page<Cafe> 타입으로 반환
     }
+
+    public CafeDto findById(Long cafeId) {
+
+        Cafe findCafe = cafeRepository.findById(cafeId).get();
+        CafeDto cafeDto = CafeDto.toDto(findCafe);
+        cafeDto.setIsOpen(isCafeOpen(findCafe));
+        return cafeDto;
+     }
+
+     public Page<String> getImages(Long cafeId, Pageable pageable) {
+        Cafe findCafe = cafeRepository.findById(cafeId).get();
+        return reviewImageRepository.findFilePathByCafe(findCafe, pageable);
+
+     }
+
+     public boolean isCafeOpen(Cafe cafe) {
+        LocalTime now = LocalTime.now();
+        int currentTime = now.getHour() * 60 + now.getMinute();
+        String today = getToday();
+        Optional<OpenHour> todayOpenHour = cafe.getOpenHourList().stream().filter(openHour -> openHour.getDay().equals(today)).findFirst();
+        if (!todayOpenHour.isEmpty()) {
+            int startTime = todayOpenHour.get().getStartTime();
+            int endTime = todayOpenHour.get().getEndTime();
+            if (startTime < currentTime && endTime > currentTime) {
+                return true;
+            }
+            return false;
+        }
+        return false;
+     }
+
+     public String getToday() {
+         List<String> list = Arrays.asList("일", "월", "화", "수", "목", "금", "토", "일");
+         Calendar cal = Calendar.getInstance();
+         String dayOfWeek = list.get(cal.get(Calendar.DAY_OF_WEEK) - 1); // 현재 요일 구하기, 1~7 -> 일, 월~금, 토
+         return dayOfWeek;
+     }
+
 
 }
