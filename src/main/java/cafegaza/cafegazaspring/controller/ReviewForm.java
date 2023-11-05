@@ -7,13 +7,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public class ReviewForm {
 
-    private Long id;
+    private Long id = null;
 
     @NotEmpty
     @Size(max = 800) // 800자까지 제한
@@ -22,7 +23,7 @@ public class ReviewForm {
     @NotNull
     private int rate; // 별점
 
-    private List<MultipartFile> imageFiles; // 리뷰 이미지 파일
+    private List<MultipartFile> imageFiles = new ArrayList<>(); // 리뷰 이미지 파일
 
 
 }
