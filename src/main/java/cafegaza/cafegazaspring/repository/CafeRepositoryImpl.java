@@ -6,6 +6,8 @@ import cafegaza.cafegazaspring.domain.QMenu;
 import cafegaza.cafegazaspring.domain.QOpenHour;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,7 +17,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import java.util.List;
+import java.time.LocalTime;
+import java.util.*;
 
 import static cafegaza.cafegazaspring.domain.QCafe.cafe;
 
@@ -41,9 +44,13 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                         , withinRadius(centerCoord)
                         , keywordContain(keyword)
                         , menuContain(searchQuery.getMenuOption())
-                        , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour()))
+                        , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour())
+                        , isCurrentOpen(searchQuery.getCurrentOpen())
+                        , isDawnOpen(searchQuery.getDawnOpen())
+                )
                 .groupBy(cafe.cafeId)
                 .having(priceLowerThan(searchQuery.getMaxPrice()))
+                .orderBy(cafeSort(searchQuery.getSortType()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -73,7 +80,10 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                         , withinRadius(centerCoord)
                         , keywordContain(keyword)
                         , menuContain(searchQuery.getMenuOption())
-                        , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour()))
+                        , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour())
+                        , isCurrentOpen(searchQuery.getCurrentOpen())
+                        , isDawnOpen(searchQuery.getDawnOpen())
+                )
                 .groupBy(cafe.cafeId)
                 .having(priceLowerThan(searchQuery.getMaxPrice()))
                 .fetch().size();
@@ -118,10 +128,55 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
 
     // start ~ end 시간 사이에 영업 중인 카페 찾기
     private BooleanExpression openHourCompare(int startHour, int endHour) {
+
         if(startHour == 0 && endHour == 0) {
             return null;
         }
-        return openHour.startTime.lt(startHour).and(openHour.endTime.gt(endHour));
+        // 분 단위로 바꿈
+        startHour = startHour * 60;
+        endHour = endHour * 60;
+        // 현재 요일에 카페의 영업 시간이 지정한 start, end 시간 안에 부분 포함되는지 확인
+        return openHour.day.eq(getLocalDay())
+                .and(openHour.startTime.lt(startHour).or(openHour.startTime.lt(endHour)))
+                .and(openHour.endTime.gt(endHour).or(openHour.endTime.gt(startHour)));
     }
+
+    // 현재 영업 중인 가게 찾기
+    private BooleanExpression isCurrentOpen(int currentOpen) {
+        if (currentOpen == 0){
+            return null;
+        }
+        LocalTime now = LocalTime.now(); // 현재 시간 구하기
+        int searchTime = (now.getHour() * 60) + now.getMinute(); // 분 단위로 바꿔서 검색
+        return openHour.day.eq(getLocalDay())
+                .and(openHour.startTime.lt(searchTime).and(openHour.endTime.gt(searchTime)));
+    }
+    // 새벽 운영하는 가게 찾기
+    private BooleanExpression isDawnOpen(int dawnOpen) {
+        if (dawnOpen == 0) {
+            return null;
+        }
+        // 영업 종료 시간이 새벽 1시 이후거나 영업 시작 시간이 자정 ~ 새벽 4시 사이일 때
+        return openHour.day.eq(getLocalDay())
+                .and(openHour.endTime.goe(60).and(openHour.endTime.lt(openHour.startTime)).or(openHour.startTime.goe(0).and(openHour.startTime.loe(240))));
+    }
+
+    // 정렬 옵션에 맞는 동적 정렬
+    public OrderSpecifier cafeSort(int sortType) {
+        if(sortType == 1){
+            return new OrderSpecifier(Order.DESC, cafe.rate);
+        } else {
+            return new OrderSpecifier(Order.DESC, cafe.reviewCount);
+        }
+    }
+
+    // 현재 요일 가져오기
+    private String getLocalDay() {
+        List<String> list = Arrays.asList("일", "월", "화", "수", "목", "금", "토", "일");
+        Calendar cal = Calendar.getInstance();
+        String dayOfWeek = list.get(cal.get(Calendar.DAY_OF_WEEK) - 1); // 현재 요일 구하기, 1~7 -> 일, 월~금, 토
+        return dayOfWeek;
+    }
+
 
 }
