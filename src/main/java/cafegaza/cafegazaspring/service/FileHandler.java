@@ -1,5 +1,6 @@
 package cafegaza.cafegazaspring.service;
 
+import cafegaza.cafegazaspring.domain.uploadFile.BbsUploadFile;
 import cafegaza.cafegazaspring.domain.uploadFile.UploadFile;
 import cafegaza.cafegazaspring.domain.uploadFile.ReviewImage;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class FileHandler {
         }
 
         // 서버에 저장될 위치
-        String savedPath = System.getProperty("user.dir") + "\\files";
+        String savedPath = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\images";
         if(!new File(savedPath).exists()){ // files 디렉토리가 존재하지 않으면 생성
             try{
                 new File(savedPath).mkdir();
@@ -43,7 +44,13 @@ public class FileHandler {
         if (opt == 1) {
             return ReviewImage.builder()
                     .fileOrigName(origFileName)
-                    .fileStoredName(filename)
+                    .fileStoredName(filename + "." + extension)
+                    .filePath(filePath)
+                    .build();
+        } else if(opt == 2) {
+            return BbsUploadFile.builder()
+                    .fileOrigName(origFileName)
+                    .fileStoredName(filename + "." + extension)
                     .filePath(filePath)
                     .build();
         }
