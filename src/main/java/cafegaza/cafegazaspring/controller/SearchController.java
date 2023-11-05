@@ -20,9 +20,32 @@ public class SearchController {
     /**
         지도모드 클릭 시 지도 뷰 열기
      */
-    @GetMapping("/map")
+    @GetMapping("/cafe/map")
     public String openMapMode(Model model){
-        return "map";
+        return "searchMap";
+    }
+
+    @GetMapping("/cafe/main")
+    public String openSearchMain(@SessionAttribute(name = "sessionId", required = false) Long memberId, Model model) {
+        // 로그인이 되어있다면
+        if (memberId != null) {
+            model.addAttribute("member", memberId);
+        }
+        return "searchMain";
+    }
+
+    /**
+     * 가게 디테일 페이지
+     */
+    @GetMapping("/cafe/view/{cafeId}")
+    public String viewDetail (@SessionAttribute(name = "sessionId", required = false) Long memberId, @PathVariable("cafeId")Long cafeId,  Model model){
+        if(memberId != null) {
+            model.addAttribute("member", memberId);
+        }
+        CafeDto cafeDto = cafeSearchService.findById(cafeId);
+        model.addAttribute("cafe", cafeDto);
+        model.addAttribute("reviewForm", new ReviewForm());
+        return "view";
     }
 
     /**
