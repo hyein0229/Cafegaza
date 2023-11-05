@@ -1,14 +1,42 @@
-@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
 @import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
+@import url(https://webfontworld.github.io/score/SCoreDream.css);
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
+@import url(https://fonts.googleapis.com/css2?family=Acme&display=swap);
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500&display=swap');
+
 *{
-	font-family : 'Nanum Gothic';
+    font-family: 'IBM Plex Sans KR', 'Spoqa Han Sans Neo', Sans-serif;
 }
-h1 {
-	font-family : 'Hanna';
-}
+/*h1 {*/
+/*	font-family : 'Hanna';*/
+/*}*/
 .carousel-inner > .carousel-item > img {
       top: 0;
       left: 0;
       width: 1200px;
       height: 100%;
  }
+
+#wrap {
+    min-width: 1340px;
+    height: 100%;
+}
+
+body {
+    background-color: var(--light);
+}
+
+a, a:hover {
+    color: black;
+    text-decoration: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-text-fill-color: #000;
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+    box-shadow: 0 0 0px 1000px #fff inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
