@@ -6,7 +6,6 @@ import cafegaza.cafegazaspring.domain.Review;
 import cafegaza.cafegazaspring.domain.uploadFile.ReviewImage;
 import cafegaza.cafegazaspring.dto.ReviewDto;
 import cafegaza.cafegazaspring.repository.CafeRepository;
-import cafegaza.cafegazaspring.repository.FileRepository;
 import cafegaza.cafegazaspring.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public class ReviewService { // 리뷰 작성, 수정, 삭제, 읽기 기능 필
 
     private final ReviewRepository reviewRepository;
     private final CafeRepository cafeRepository;
-    private final FileRepository fileRepository;
+//    private final FileRepository fileRepository;
     private final FileHandler fileHandler;
 
     /**
@@ -43,7 +43,12 @@ public class ReviewService { // 리뷰 작성, 수정, 삭제, 읽기 기능 필
         }
 
         Review review = Review.createReview(cafe, reviewForm.getContent(), reviewForm.getRate(), reviewImages); // review 엔티티 생성
-        return reviewRepository.save(review).getReviewId(); // review 를 db 에 저장
+        Long savedId = reviewRepository.save(review).getReviewId(); // review 를 db 에 저장
+
+        double rate = reviewRepository.findAvgRate(cafe);
+        cafe.updateRate(Double.parseDouble(String.format("%.1f", rate)));
+
+        return savedId;
     }
 
     /**
@@ -87,11 +92,22 @@ public class ReviewService { // 리뷰 작성, 수정, 삭제, 읽기 기능 필
      */
     @Transactional
     public void delete(Long reviewId) {
-        Review findReview = reviewRepository.findById(reviewId).get();
-        if(!findReview.getReviewImages().isEmpty()){
-            fileRepository.deleteAll(findReview.getReviewImages());
-        }
+        Review findReview = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new NoSuchElementException("리뷰를 찾을 수 없습니다."));;
+
+//        if(!findReview.getReviewImages().isEmpty()){
+//            fileRepository.deleteAll(findReview.getReviewImages());
+//        }
+        Cafe cafe = findReview.getCafe();
+        findReview.delete();
         reviewRepository.delete(findReview);
+
+        if(!cafe.getReviews().isEmpty()) {
+            double rate = reviewRepository.findAvgRate(cafe);
+            cafe.updateRate(Double.parseDouble(String.format("%.1f", rate)));
+        } else{
+            cafe.updateRate(0);
+        }
     }
 
     public Review findOne(Long reviewId) {
