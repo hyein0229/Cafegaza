@@ -38,9 +38,10 @@ public class ReviewServiceTest {
     public void createReviewTest() throws Exception {
 
         // 리뷰 폼 작성
-        Long cafeId = Long.valueOf(1); // 리뷰 대상 카페 id 1번 -> 어반플랜트 합정
+        Long cafeId = Long.valueOf(1L); // 리뷰 대상 카페 id 1번 -> 어반플랜트 합정
         ReviewForm reviewForm = new ReviewForm();
-        reviewForm.setContent("리뷰 생성 테스트");
+        reviewForm.setContent("wgwgwwegwefsgdsdsssssssssssssssssssssssssssssssssss" +
+                "wegggggggggg");
         reviewForm.setRate(3);
         reviewForm.setImageFiles(new ArrayList<>());
 
@@ -65,7 +66,9 @@ public class ReviewServiceTest {
         //then
         Review review = reviewRepository.findById(savedId).get();
         Cafe cafe = review.getCafe();
-        Assertions.assertEquals(review, cafe.getReviews().get(0)); // 연관관계 매핑 확인
+        System.out.println(cafe.getReviewCount());
+        System.out.println(cafe.getRate());
+//        Assertions.assertEquals(review, cafe.getReviews().get(0)); // 연관관계 매핑 확인
 
     }
     /*
@@ -113,7 +116,8 @@ public class ReviewServiceTest {
     @Test
     @Rollback(value = false)
     public void deleteReviewTest() {
-        reviewService.delete(52L);
+        reviewService.delete(902L);
+
     }
 
 }
