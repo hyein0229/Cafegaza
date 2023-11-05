@@ -32,19 +32,20 @@ public class Review extends BaseTime {
 
     private int rate; // 별점
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL) // 리뷰 이미지도 함께 저장
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL) // 리뷰 이미지도 함께 저장, 삭제
     @Builder.Default // builder 사용 시 초기화할 수 있도록 함
     private List<ReviewImage> reviewImages = new ArrayList<>();// 리뷰 이미지
 
 
     //--양방향 연관관계 매핑 메소드--//
-    public void addReviewImage(ReviewImage reviewImage) {
+    public void addReviewImage(ReviewImage reviewImage, Cafe cafe) {
         this.reviewImages.add(reviewImage);
         reviewImage.setReview(this);
+        reviewImage.setCafe(cafe);
     }
     public void setCafe(Cafe cafe){
         this.cafe = cafe;
-        cafe.getReviews().add(this);
+        cafe.addReview(this);
     }
 
     //-- 리뷰 생성 메소드--//
@@ -52,8 +53,9 @@ public class Review extends BaseTime {
         Review review = Review.builder().content(content).rate(rate).reviewImages(new ArrayList<>()).build();
         review.setCafe(cafe);
         for(ReviewImage reviewImage : reviewImages) {
-            review.addReviewImage(reviewImage);
+            review.addReviewImage(reviewImage, cafe);
         }
+
         return review;
     }
 
@@ -66,8 +68,13 @@ public class Review extends BaseTime {
         }
         this.reviewImages.clear();
         for(ReviewImage reviewImage : reviewImages) {
-            this.addReviewImage(reviewImage); // 새로운 이미지 추가
+            this.addReviewImage(reviewImage, this.cafe); // 새로운 이미지 추가
         }
+    }
+
+    public void delete() {
+        this.cafe.deleteReview(this);
+        this.cafe = null;
     }
 
 
