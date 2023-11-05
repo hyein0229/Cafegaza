@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface MenuRepository extends JpaRepository<Menu, Long> {
 
-    List<Menu> findByCafeAndMenuNameContains(Cafe cafe, String menuName);
     List<Menu> findByCafe(Cafe cafe);
 
 }
