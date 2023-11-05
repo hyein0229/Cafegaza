@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width" ,="" initial-scale="1">
+    <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <title>Cafegaza</title>
+    <style>
+        #wrap {
+            min-width: 1340px;
+        }
+
+        .header-navbar {
+            display: block;
+            background: #f8f8f8;
+            box-shadow: 1px 1px 40px 15px #dadce0;
+        }
+
+        #go-top {
+            display: none;
+            position: fixed;
+            margin-left: 25px;
+            bottom: 100px;
+            outline: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            z-index: 9999;
+            color: #0755eb;
+        }
+        .btn:focus {
+            box-shadow: none;
+        }
+
+        .detail {
+            width: 800px;
+            margin: 112px auto 50px auto;
+        }
+
+        .place_info .gray {color:#8a8a8a;}
+        .place_info .jibun {
+            padding-left:26px;
+            background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;
+            font-size: 15px;
+        }
+
+        #wrap hr {
+            display: block;
+            height: 1px;
+            border: 0;
+            border-top: 1px solid #dee2e6;
+            margin: 25px 0;
+        }
+        .menu_item {
+            list-style: none;
+            min-height: 100px;
+            margin-bottom: 12px;
+            margin-right: 10px;
+            float: left;
+            width: 310px;
+            display: none;
+        }
+
+        :root {
+            --yellow: #FFBD13;
+            --blue: #4383FF;
+            --blue-d-1: #3278FF;
+            --light: #F5F5F5;
+            --grey: #AAA;
+            --white: #FFF;
+            --shadow: 8px 8px 30px rgba(0,0,0,.05);
+        }
+
+        .wrapper {
+            background: var(--white);
+            padding: 10px 0 15px;
+            max-width: 576px;
+            width: 100%;
+            border-radius: .75rem;
+            /*box-shadow: var(--shadow);*/
+            text-align: center;
+            /*margin-top: 60px;*/
+        }
+
+        .rating {
+            /* display: flex; */
+            /* justify-content: center; */
+            align-items: center;
+            grid-gap: 0.5rem;
+            font-size: 2rem;
+            color: var(--yellow);
+        }
+        .rating .star {
+            cursor: pointer;
+        }
+        .rating .star.active {
+            opacity: 0;
+            animation: animate .5s calc(var(--i) * .1s) ease-in-out forwards;
+        }
+
+        @keyframes animate {
+            0% {
+                opacity: 0;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+
+        .rating .star:hover {
+            transform: scale(1.1);
+        }
+
+        textarea {
+            width: 100%;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid black;
+            resize: none;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            grid-gap: .5rem;
+            align-items: center;
+        }
+        .btn-group .btn {
+            padding: .75rem 1rem;
+            border-radius: .5rem;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: .875rem;
+            font-weight: 500;
+        }
+        .btn-group .btn.submit {
+            background: var(--blue);
+            color: var(--white);
+        }
+        .btn-group .btn.submit:hover {
+            background: var(--blue-d-1);
+        }
+        .btn-group .btn.cancel {
+            background: var(--white);
+            color: var(--blue);
+        }
+        .btn-group .btn.cancel:hover {
+            background: var(--light);
+        }
+        .css-k008qs {
+            display: flex;
+        }
+        .css-1hyfx7x {
+            display: none;
+        }
+        body, input, select, textarea, button, a {
+            -webkit-text-size-adjust: none;
+        }
+
+        .css-gt8b6r {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px 0px 20px;
+            /*border-bottom: 1px solid rgb(212, 212, 212);*/
+        }
+
+        .css-dkf22s {
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            justify-content: center;
+            min-width: 40px;
+            min-height: 25px;
+            position: relative;
+            display: block;
+            width: 100px;
+            height: 100px;
+            background: rgb(48, 48, 51);
+            line-height: 100em;
+            overflow: hidden;
+        }
+        /*button {*/
+        /*    border: 0;*/
+        /*    background: transparent;*/
+        /*    cursor: pointer;*/
+        /*    outline: none;*/
+        /*}*/
+        .css-dkf22s::before {
+            margin-top: -11px;
+            width: 1px;
+            height: 22px;
+        }
+        .css-dkf22s::after, .css-dkf22s::before {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: rgb(255, 255, 255);
+            content: "";
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        .css-dkf22s::after {
+            margin-left: -11px;
+            width: 22px;
+            height: 1px;
+        }
+
+        .review-delete-btn {
+            margin-left: -27px;
+            position: absolute;
+            margin-top: -7px;
+            border-radius: 50%;
+        }
+
+    </style>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=7ca06ae2e205d6d0f938bf2a3b7fd504&libraries=services"></script>
+    <script src="/js/bootstrap.js"></script>
+</head>
+<body>
+<div id="wrap">
+    <div id="header">
+        <div id="nav_area">
+            <nav class="navbar navbar-expand-lg navbar-light header-navbar" >
+                <a class="navbar-brand" href="/">카페가자</a>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/cafe/main">카페 찾기 </a>
+                        </li>
+                        <li th:if="${#strings.isEmpty(member)}" class="nav-item active">
+                            <a class="nav-link" href="/login">로그인</a>
+                        </li>
+                        <li th:unless="${#strings.isEmpty(member)}" class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                </svg>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="#">즐겨찾기</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">로그아웃</a>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div id="content" class="detail">
+        <div id="top_info" class="d-flex justify-content-center">
+            <img id="place_image" th:src="${cafe.cafeImageUrl}" style="width: 330px; height: 330px; float: left;"/>
+            <div id="right" style="margin-left: 80px; float: left;">
+                <h1 id="place_name" th:text="${cafe.name}"></h1>
+                <h2 id="place_rate" th:text="'별점 ' + ${cafe.rate}"></h2>
+                <h2 th:if="${cafe.isOpen}" style="color: #3caf57;">영업 중</h2>
+                <h2 th:unless="${cafe.isOpen}" style="color: #dc3545;">영업 중지</h2>
+                <div id="button_group" style="margin-top: 80px;">
+                    <button id="review_write"th:onclick="openReviewModal([[${member}]])" type="button" class="btn shadow-none" style="margin: 10px 10px 10px 0; padding-left: 0px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                        </svg>
+                        <span style="display: block; padding: 5px;">리뷰 쓰기</span>
+                    </button>
+                    <button id="bookmark" th:onclick="bookMarkToggle([[${cafe.id}]])" type="button" class="btn shadow-none" style="margin: 10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                        </svg>
+                        <span style="display: block; padding: 5px;">담기</span>
+                    </button>
+                </div>
+
+                <!-- review Modal -->
+                <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-hidden="true" style="top: 150px;">
+                    <div class="modal-dialog" role="document">
+                        <form th:onsubmit="postReview([[${cafe.id}]]); return false;" style="margin-top: 15px;">
+                            <div class="modal-content" style="width: 600px; border-radius: 30px;">
+                                <div class="modal-header" style="border-bottom: none;">
+                                    <h2 class="modal-title" id="reviewModeLabel" style="padding-top: 20px; margin-left: 230px;">리뷰 작성</h2>
+                                    <button type="button" class="close" data-dismiss="modal" onclick="resetReview();" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body" style="padding: 5px 2rem 15px; text-align: center;">
+                                    <div class="wrapper">
+                                        <h3 th:text="${cafe.name}"></h3>
+                                        <div class="rating">
+                                            <span style="font-size: 1.8rem; color: black; margin-right: 10px;">별점</span>
+                                            <input type="number" name="rating" hidden>
+                                            <i class='bx bx-star star' style="--i: 0;"></i>
+                                            <i class='bx bx-star star' style="--i: 1;"></i>
+                                            <i class='bx bx-star star' style="--i: 2;"></i>
+                                            <i class='bx bx-star star' style="--i: 3;"></i>
+                                            <i class='bx bx-star star' style="--i: 4;"></i>
+                                        </div>
+                                    </div>
+                                    <textarea id="review_opinion" name="opinion" cols="30" rows="10" placeholder="리뷰 내용을 작성해주세요!"></textarea>
+                                    <div class="css-gt8b6r epxy3cj0">
+                                        <div class="css-k008qs epxy3cj1">
+                                            <ul id="previewList" style="list-style: none; padding: 0;"></ul>
+                                            <input type="file" id="image-input" accept="image/*" multiple class="css-1hyfx7x epxy3cj3" onchange="setPreview(this)">
+                                            <button id="imageInputBtn" class="epxy3cj4 css-dkf22s e10q62zt1" type="button" onclick="onClickUpload();">사진첨부</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer" style="padding: 0px; height: 47px;">
+                                    <div class="btn-group" role="group" aria-label="modal_btn_group" style="width: 100%;">
+                                        <button type="submit" class="btn shadow-none" style="width: 100%;">등록하기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!--  login Modal -->
+                <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true" style="top: 150px;">
+                    <div class="modal-dialog" role="document" style="top: 150px; display: flex; justify-content: center;">
+                        <div class="modal-content" style="width: 350px; border-radius: 30px;">
+                            <div class="modal-header" style="border-bottom: none;">
+                                <h5 class="modal-title" id="loginModeLabel" style="margin-left: 138px;">알림</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" style="padding: 5px 2rem 15px; text-align: center;">
+                                로그인이 필요합니다.
+                            </div>
+                            <div class="modal-footer" style="margin-top: 11px; padding: 0px; height: 40px;">
+                                <div class="btn-group" role="group" aria-label="modal_btn_group" style="width: 100%;">
+                                    <button type="button" class="btn shadow_none" data-dismiss="modal" style="border-right: 1px solid #dee2e6; width: 100%">확인</button>
+                                    <button type="button" class="btn shadow-none" style="width: 100%;">로그인하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab" style="margin-top: 50px; margin-left: 54px;">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">정보</a>
+                    <a class="nav-item nav-link" id="nav-review-tab" data-toggle="tab" href="#review" th:onclick="getReview([[${cafe.id}]])" role="tab" aria-controls="review" aria-selected="false" >
+                        <span>리뷰</span>
+                        <span th:text="${(cafe.reviewCount)}"></span>
+                    </a>
+                    <a class="nav-item nav-link" id="nav-picture-tab" data-toggle="tab" href="#picture" th:onclick="getImageList([[${cafe.id}]])" role="tab" aria-controls="picture" aria-selected="false">사진</a>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent" style="margin-top: 30px;">
+                <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="nav-detail-tab" style="padding: 10px;">
+                    <div th:if="${!#strings.isEmpty(cafe.roadAddress) or !#strings.isEmpty(cafe.address)}" class="place_info" style="display: flex; margin-bottom: 17px;">
+                        <span>주소</span>
+                        <div id="place_address" style="margin-left: 25px;">
+                            <span th:text="${cafe.roadAddress}" style="display: block; margin-bottom: 5px;"></span>
+                            <span th:unless="${#strings.isEmpty(cafe.address)}" th:text="${cafe.address}" class="jibun gray"></span>
+                        </div>
+                    </div>
+                    <div th:if="${!#strings.isEmpty(cafe.x) and !#strings.isEmpty(cafe.y)}"id="map" style="width:580px;height:277px;position:relative;overflow:hidden;margin-left: 53px;margin-bottom: 17px;"></div>
+                    <script th:if="${!#strings.isEmpty(cafe.x) and !#strings.isEmpty(cafe.y)}" th:inline="javascript">
+
+                        var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+                            bounds = new kakao.maps.LatLngBounds();
+                            mapOption = {
+                                center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+                                level: 3 // 지도의 확대 레벨
+                            };
+                        // 지도를 생성합니다
+                        var map = new kakao.maps.Map(mapContainer, mapOption);
+
+                        var placePosition = new kakao.maps.LatLng([[${cafe.y}]], [[${cafe.x}]])
+                        var marker = new kakao.maps.Marker({
+                            position: placePosition
+                        });
+                        bounds.extend(placePosition);
+                        marker.setMap(map); // 지도 위에 마커를 표출합니다
+                        // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+                        map.setBounds(bounds);
+
+                    </script>
+                    <div th:unless="${#strings.isEmpty(cafe.telephone)}" class="place_info" style="display: flex; margin-bottom: 10px;">
+                        <span>전화</span>
+                        <div id="place_tel" style="margin-left: 25px;">
+                            <span th:text="${cafe.telephone}"></span>
+                        </div>
+                    </div>
+                    <div th:unless="${#strings.isEmpty(cafe.openHours)}" class="place_info" style="display: flex; margin-bottom: 10px;">
+                        <span>영업 시간</span>
+                        <div id="place_open" style="margin-left: 25px;">
+                            <span th:text="${cafe.openHours}"></span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div th:unless="${#strings.isEmpty(cafe.menus)}" class="place_info" style="margin-bottom: 10px;">
+                        <span>메뉴</span>
+                        <ul id="place_menu" style="margin-left: 25px;">
+                            <li th:each="menu : ${cafe.menus}" class="menu_item">
+                                <img th:unless="${#strings.isEmpty(menu.menuImage)}" th:src="${menu.menuImage}" style="width: 100px; height: 100px; float: left" alt="메뉴 사진"/>
+                                <div class="menu_body" style="display: inline-block; width: 210px; padding: 0 10px;">
+                                    <span th:text="${menu.menuName}" ></span>
+                                    <span th:if="${menu.popularity == 1}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
+                                            <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2.144 2.144 0 0 0-.138-.362 1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a9.84 9.84 0 0 0-.443.05 9.365 9.365 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111L8.864.046zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014a8.908 8.908 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.224 2.224 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.866.866 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"/>
+                                        </svg>
+                                    </span>
+                                    <div th:if="${!#strings.isEmpty(menu.price)}" th:text="${'가격 ' + menu.price + '원'}"></div>
+                                </div>
+                            </li>
+                        </ul>
+                        <button th:if="${#lists.size(cafe.menus) > 8}" id="menu-more" class="btn" style="width: 100%;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
+                            </svg>
+                            <span style="padding: 5px;">더 보기</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="nav-review-tab">
+                    <ul id="review_list" style="list-style: none; padding-left: 0; width: 760px; margin-bottom: 0px;"></ul>
+                    <button id="review-more" th:onclick="getReview([[${cafe.id}]])" class="btn" style="width: 100%; display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
+                        </svg>
+                        <span style="padding: 5px;">더 보기</span>
+                    </button>
+                </div>
+                <div class="tab-pane fade" id="picture" role="tabpanel" aria-labelledby="nav-picture-tab">
+                    <ul id="image_list" style="list-style: none; padding: 10px; width: 760px; margin-bottom: 0px;"></ul>
+                    <button id="image-more" th:onclick="getImageList([[${cafe.id}]])" class="btn" style="width: 100%; display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
+                        </svg>
+                        <span style="padding: 5px;">더 보기</span>
+                    </button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div id="footer"></div>
+</div>
+<script>
+
+    var reviewPages = {};
+    var reviewPageNum = 0;
+    var keyword;
+    var menuOption = '';
+    let isSetOpenHour = 0;
+    let startHour = 0
+    let endHour = 0;
+    let currentOpen = 0;
+    let dawnOpen = 0;
+    let sortType = 1;
+    var uploadImageFiles = {};
+    var imageIndex = 0;
+    var imagePages = {};
+    var imagePageNum = 0;
+
+    // var backToTop = () => {
+    //     // Scroll | button show/hide
+    //     window.addEventListener('scroll', () => {
+    //         if (document.querySelector('html').scrollTop > 100) {
+    //             document.getElementById('go-top').style.display = "block";
+    //         } else {
+    //             document.getElementById('go-top').style.display = "none";
+    //         }
+    //     });
+    //     // back to top
+    //     document.getElementById('go-top').addEventListener('click', () => {
+    //         window.scrollTo({
+    //             top: 0,
+    //             left: 0,
+    //             behavior: 'smooth'
+    //         });
+    //     })
+    // };
+    // backToTop();
+
+    $(function(){
+        var count = $(".menu_item").length;
+        $(".menu_item").slice(0, (count > 8 ? 8 : count)).show(); // 초기 보여줄 갯수
+        $("#menu-more").click(function(e){ // 클릭시 more
+            e.preventDefault();
+            $(".menu_item:hidden").slice(0, ($(".menu_item:hidden").length > 8 ? 8 : $(".menu_item:hidden").length)).show();
+            if ($(".menu_item:hidden").length == 0) {
+                $("#menu-more").hide();
+            }
+        });
+    });
+
+    function openReviewModal(memberId) {
+        // if(memberId == null) {
+        //     $('#loginModal').modal("show");
+        // } else {
+        //     $('#reviewModal').modal("show");
+        // }
+
+        $('#reviewModal').modal("show");
+
+
+    }
+
+    const allStar = document.querySelectorAll('.rating .star')
+    const ratingValue = document.querySelector('.rating input')
+
+    allStar.forEach((item, idx)=> {
+        item.addEventListener('click', function () {
+            let click = 0
+            ratingValue.value = idx + 1
+
+            allStar.forEach(i=> {
+                i.classList.replace('bxs-star', 'bx-star')
+                i.classList.remove('active')
+            })
+            for(let i=0; i<allStar.length; i++) {
+                if(i <= idx) {
+                    allStar[i].classList.replace('bx-star', 'bxs-star')
+                    allStar[i].classList.add('active')
+                } else {
+                    allStar[i].style.setProperty('--i', click)
+                    click++
+                }
+            }
+        })
+    })
+
+    function resetReview() {
+        const allStar = document.querySelectorAll('.rating .star')
+        allStar.forEach(i=> {
+            i.classList.replace('bxs-star', 'bx-star')
+            i.classList.remove('active')
+        })
+        ratingValue.value = 0;
+        $('#review_opinion').val('');
+        imageIndex = 0;
+        uploadImageFiles = {};
+        $('#previewList').children().remove();
+    }
+
+    function onClickUpload(){
+        let imageInput = document.getElementById("image-input");
+        imageInput.click();
+    }
+
+    function setPreview(imageInput) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            var itemEl = document.createElement('li');
+            itemEl.id = 'preview' + imageIndex;
+            itemEl.style.display = "inline-block";
+
+            var img = document.createElement("img");
+            img.setAttribute("src", e.target.result);
+            img.style.cssText = "width: 100px; height: 100px; margin-right: 10px;";
+            img.id = "uploadFile" + imageIndex;
+
+            var deleteBtn = document.createElement('button');
+            deleteBtn.addEventListener("click", deleteFile);
+            deleteBtn.innerHTML = 'x';
+            deleteBtn.type = "button";
+            deleteBtn.className = "review-delete-btn";
+            deleteBtn.id = 'imageDelete' + imageIndex;
+
+            itemEl.appendChild(img);
+            itemEl.appendChild(deleteBtn);
+            document.querySelector("#previewList").appendChild(itemEl);
+            imageIndex++;
+
+            if(Object.keys(uploadImageFiles).length == 4) {
+                $("#imageInputBtn").hide();
+            }
+        };
+
+        reader.readAsDataURL(imageInput.files[0]);
+        uploadImageFiles[imageIndex] = imageInput.files[0];
+
+    }
+
+    function deleteFile(e) {
+        var number = e.target.id.substr(-1); // 사진 번호
+        var itemEl = document.getElementById('preview' + number);
+        document.querySelector("#previewList").removeChild(itemEl);
+        delete uploadImageFiles[number];
+
+        if($("#imageInputBtn").css("display") == "none") {
+            $("#imageInputBtn").show();
+        }
+    }
+
+
+    // 북마크 버튼을 눌렀을 때
+    function bookMarkToggle(cafeId) {
+        var bookMarkEl = document.getElementById('bookmark');
+
+        if(bookMarkEl.getAttribute('name') == 'checked_bookmark') {
+            // 북마크 제거도 필요
+            bookMarkEl.name = "bookmark";
+            bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
+                '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
+                '</svg>\n' +'<span style="display: block; padding: 5px;">담기</span>';
+        } else {
+            addBookMark(cafeId, bookMarkEl);
+        }
+    }
+
+    // 북마크 추가 요청
+    function addBookMark(cafeId, bookMarkEl) {
+
+        $.ajax({
+
+            url: '/bookmark/' + cafeId,
+            type: 'post',
+            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            contentType: "application/json; charset=utf-8",
+            success : function() {
+                // 성공적으로 북마크 추가되면 하트를 눌러진 상태로 변경
+                bookMarkEl.name = "checked_bookmark";
+                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">' +
+                    '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>' + '</svg>\n' +'<span style="display: block; padding: 5px;">담기</span>';
+            },
+            error:function(request){
+                // 권한 없음 에러일 경우 모달창 보여주기
+                $('#loginModal').modal("show");
+                console.log("code:"+request.status);
+            }
+        });
+    }
+
+    function postReview(cafeId) {
+        var formData = new FormData();
+        var rate = Number(ratingValue.value); // 별점
+        var reviewOpinion = document.getElementById('review_opinion').value; // 리뷰 작성 내용
+
+        if(rate == 0) {
+            alert('별점을 눌러주세요!');
+            return;
+        }
+
+        formData.append('rate', rate);
+        formData.append('content', reviewOpinion);
+        // 업로드 이미지 파일
+        for (var key in uploadImageFiles) {
+            formData.append('imageFiles', uploadImageFiles[key]);
+        }
+
+        $.ajax({
+
+            url: '/review/' + cafeId + '/new',
+            data: formData,
+            type: 'post',
+            async: false, // 응답받은 결과를 전역변수에 저장하기 위해
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            success: function () {
+
+                document.querySelector('#reviewModal .close').click();
+
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
+
+    }
+
+    function getReview(cafeId) {
+
+        if(reviewPageNum in reviewPages) {
+            return;
+        }
+
+        $.ajax({
+
+            url: '/review/' + cafeId + '?page=' + reviewPageNum + '&size=8', // 요쳥을 보낼 서버의 URL 주소 + parameter
+            type: 'get',
+            async: false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+
+                if (data['totalElements'] == 0) { // 검색 결과가 0건이면
+                    alert('리뷰가 없습니다.');
+                    return;
+
+                } else {
+                    reviewPages[reviewPageNum] = data['content'];
+                    displayReviews(data['content'], data['totalPages']);
+                    if(data['totalPages'] > reviewPageNum+1) {
+                        $('#review-more').show();
+                    } else {
+                        $('#review-more').hide();
+                    }
+                    reviewPageNum++;
+                }
+
+                console.log(data);
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
+    }
+
+    function displayReviews(reviews, totalPages) {
+        var reviewList = document.getElementById('review_list'),
+            fragment = document.createDocumentFragment();
+
+        for(var i=0; i<reviews.length; i++) {
+            var itemEl = getReviewItem(reviews[i]);
+            fragment.appendChild(itemEl);
+        }
+
+        reviewList.appendChild(fragment);
+
+    }
+
+    function getReviewItem(review) {
+
+        var item = document.createElement('li'),
+            innerStr = '';
+
+        var writerInfoEl = document.createElement('div');
+        writerInfoEl.className = "writer_info";
+        writerInfoEl.style.cssText = "display: inline-block; position: absolute; margin-left: -80px;";
+        innerStr = ' <span>' + review.member.nickname + '</span>';
+        writerInfoEl.innerHTML = innerStr;
+
+        var reviewInfoEl = document.createElement('div');
+        reviewInfoEl.className = "review_info";
+        reviewInfoEl.style.display = "inline-block";
+        reviewInfoEl.innerHTML = '<span className="write_time">' + review.createdDate + '</span>';
+
+        var rateInfoEl = document.createElement('div');
+        rateInfoEl.className = "rate_info";
+        var starEl = getStarEl(review.rate);
+        rateInfoEl.innerHTML = starEl;
+        reviewInfoEl.appendChild(rateInfoEl);
+
+        item.appendChild(writerInfoEl);
+        item.appendChild(reviewInfoEl);
+
+        if(review.images.length > 0){
+            var photoInfoEl = document.createElement('div');
+            photoInfoEl.className = "photo_info";
+            photoInfoEl.style.paddingTop = "15px";
+            var photoList = getPhotoList(review.images);
+            photoInfoEl.appendChild(photoList);
+            item.appendChild(photoInfoEl);
+        }
+
+        var contentEl = document.createElement('div');
+        contentEl.className = "review_content";
+        contentEl.style.cssText = "margin-top: 10px;"
+        contentEl.innerHTML = '<p style="word-wrap: break-word; margin-bottom: 5px;">\n' + review.content + '</p>';
+        item.appendChild(contentEl);
+
+        item.id = review.reviewId;
+        item.className = "review_item";
+        item.style.cssText = "padding: 5px 0 5px 6rem;";
+
+        return item;
+    }
+
+    function getStarEl(rate) {
+        var starEl = '';
+        for(var i=0; i<rate; i++) {
+            starEl += '<span>\n' +
+                '   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" className="bi bi-star-fill" viewBox="0 0 16 16">\n' +
+                ' <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>\n' +
+                ' </svg>\n' +
+                ' </span>\n'
+        }
+
+        for(var i=0; i< 5-rate; i++) {
+            starEl += '<span>\n' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-star" viewBox="0 0 16 16">\n' +
+                '<path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 ' +
+                '0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>\n'
+                + '</svg>\n' + ' </span>\n';
+        }
+        return starEl;
+    }
+
+    function getPhotoList(imageList) {
+        var photoListEl = document.createElement('ul');
+        photoListEl.className = "photo_list";
+        photoListEl.style.paddingLeft = "0px";
+        for (var i=0; i<imageList.length; i++) {
+            var photoItemEl = getPhotoItem(imageList[i]);
+            photoListEl.appendChild(photoItemEl);
+        }
+        return photoListEl;
+    }
+
+    function getPhotoItem(image) {
+        var photoItem = document.createElement('li');
+        photoItem.className = "photo_item";
+        photoItem.style.display = "inline-block";
+        photoItem.style.padding = "3px";
+
+        var imgEl = document.createElement('img');
+        imgEl.src = '/images/' + image;
+        imgEl.style.cssText = "width: 140px; height: 140px;";
+        photoItem.appendChild(imgEl);
+
+        return photoItem;
+    }
+
+    function getImageList(cafeId) {
+
+        if(imagePageNum in imagePages) {
+            return;
+        }
+
+        $.ajax({
+
+            url: '/reviewImage/' + cafeId + '?page=' + imagePageNum + '&size=40',
+            type: 'get',
+            async: false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+
+                if (data['totalElements'] == 0) { // 검색 결과가 0건이면
+                    alert('리뷰 사진이 없습니다.');
+                    return;
+
+                } else {
+                    imagePages[imagePageNum] = data['content'];
+                    displayImages(data['content']);
+                    if(data['totalPages'] > imagePageNum+1) {
+                        $('#image-more').show();
+                    } else {
+                        $('#image-more').hide();
+                    }
+                    imagePageNum++;
+                }
+
+                console.log(data);
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
+
+    }
+
+    function displayImages(fileList) {
+        var imageList = document.getElementById('image_list');
+        for (var i=0; i<fileList.length; i++) {
+            var itemEl = document.createElement('li');
+
+            var img = document.createElement('img');
+            img.src = '/images/' + fileList[i];
+            img.style.cssText = 'width: 120px; height: 120px;';
+
+            itemEl.appendChild(img);
+            itemEl.style.cssText = 'display: inline-block; border: 1px solid white';
+
+            imageList.appendChild(itemEl);
+        }
+    }
+
+</script>
+</body>
+</html>
