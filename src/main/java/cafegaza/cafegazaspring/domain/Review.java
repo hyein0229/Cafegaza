@@ -48,10 +48,16 @@ public class Review extends BaseTime {
         cafe.addReview(this);
     }
 
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
     //-- 리뷰 생성 메소드--//
-    public static Review createReview(Cafe cafe, String content, int rate, List<ReviewImage> reviewImages) {
+    public static Review createReview(Cafe cafe, Member member, String content, int rate, List<ReviewImage> reviewImages) {
         Review review = Review.builder().content(content).rate(rate).reviewImages(new ArrayList<>()).build();
         review.setCafe(cafe);
+        review.setMember(member);
+
         for(ReviewImage reviewImage : reviewImages) {
             review.addReviewImage(reviewImage, cafe);
         }
@@ -65,6 +71,7 @@ public class Review extends BaseTime {
         this.rate = rate;
         for(ReviewImage reviewImage : this.reviewImages) {
             reviewImage.setReview(null); // 기존 이미지 엔티티의 참조 해제
+            reviewImage.setCafe(null);
         }
         this.reviewImages.clear();
         for(ReviewImage reviewImage : reviewImages) {
