@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width", initial-scale="1">
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <title>Cafegaza</title>
+    <style>
+        .map_wrap, .map_wrap * {margin:0;padding:0;font-size:12px;}
+        .map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
+        .map_wrap {position:absolute;width:100%;height:100%;}
+        #map {width: 100%;height: 100%;position:absolute;left:0;top:0;margin:0;padding:0;}
+        #nav_wrap {
+            z-index: 9998;
+            position: absolute;
+            top: 0;
+            left: 0px;
+            bottom: 0;
+            width: 50px;
+            margin: 20px 0;
+            box-sizing: border-box;
+        }
+        .menu_wrap {
+            z-index: 9998;
+            position: absolute;
+            top: 0;
+            left: 56px;
+            bottom: 0;
+            width: 320px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        #search_box {
+            border: 1px solid #888;
+            border-radius: 11px 11px 0px 0px;
+            overflow: hidden;
+            min-height: 65px;
+            margin: 5px 0;
+            background-color: white;
+            z-index: 9998;
+            top: 16px;
+            left: 53px;
+            width: 320px;
+            /* padding: 5px 0; */
+        }
+        .menu-btn {
+            cursor: pointer;
+            font-size: 40px;
+            font-weight: 500;
+            border-radius: 0px 11px 11px 0px;
+            background-color: royalblue;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 50px;
+        }
+        #places_box {
+            z-index: 9998;
+            top: 90px;
+            left: 53px;
+            bottom: 0;
+            width: 320px;
+            height: 930px;
+            margin: 10px 0;
+            overflow-y: auto;
+            box-sizing: border-box;
+            -ms-overflow-style: none;
+            /* padding: 5px 0; */
+        }
+        #places_box hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
+        #search_box #search_area {
+            text-align: center;
+            position: relative;
+            padding: 19px 20px 5px 20px;
+            border-radius: 11px 11px 0px 0px;
+            overflow: hidden;
+            /* margin-top: 10px; */
+        }
+        /*#search_box .option p {margin:10px 0;}*/
+        /*#search_box .option button {margin-left:5px;}*/
+        #places_box #placesList {
+            padding-left: 0;
+            overflow-y: auto;
+            box-sizing: border-box;
+            -ms-overflow-style: none;
+            /*padding-bottom: 80px;*/
+            /*margin-top: 10px;*/
+        }
+        #places_box::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera*/
+        }
+        .list_overlay {
+            word-break: keep-all;
+            text-align: left;
+            padding: 15px 10px;
+            min-width: 100px;
+            position: relative;
+            line-height: 1.6;
+            cursor: pointer;
+        }
+        #placesList li {list-style: none;}
+        #placesList .item {
+            position: relative;
+            border: 1px solid #888;
+            border-radius: 11px 11px 11px 11px;
+            overflow: hidden;
+            cursor: pointer;
+            min-height: 65px;
+            margin: 5px 0;
+            background-color: white;
+        }
+        #placesList .item span {display: block;margin-top:4px;}
+        #placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;/*white-space: nowrap;*/}
+        #placesList .item .info{padding:10px 0 10px 55px;}
+        #placesList .info .gray {color:#8a8a8a;}
+        #placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
+        #placesList .info .tel {color:#009900;}
+        #placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+        #placesList .item .marker_1 {background-position: 0 -10px;}
+        #placesList .item .marker_2 {background-position: 0 -56px;}
+        #placesList .item .marker_3 {background-position: 0 -102px}
+        #placesList .item .marker_4 {background-position: 0 -148px;}
+        #placesList .item .marker_5 {background-position: 0 -194px;}
+        #placesList .item .marker_6 {background-position: 0 -240px;}
+        #placesList .item .marker_7 {background-position: 0 -286px;}
+        #placesList .item .marker_8 {background-position: 0 -332px;}
+        #placesList .item .marker_9 {background-position: 0 -378px;}
+        #placesList .item .marker_10 {background-position: 0 -423px;}
+        #placesList .item .marker_11 {background-position: 0 -470px;}
+        #placesList .item .marker_12 {background-position: 0 -516px;}
+        #placesList .item .marker_13 {background-position: 0 -562px;}
+        #placesList .item .marker_14 {background-position: 0 -608px;}
+        #placesList .item .marker_15 {background-position: 0 -654px;}
+        #pagination {margin:10px auto;text-align: center;}
+        #pagination a {display:inline-block;margin-right:10px;}
+        #pagination .on {font-weight: bold; cursor: default;color:#777;}
+        #option_group {
+            align-items: center;
+            height: 230px;
+            margin: 3px 12px 10px 12px;
+            padding: 8px;
+        }
+        .dropdown-item {
+            display: flex;
+            width: 100%;
+            padding: 0.25rem 1.5rem;
+            clear: both;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            height: 25px;
+            justify-content: center;
+            align-items: center;
+        }
+        .option_item {
+            padding: 5px;
+            width: 250px;
+        }
+        .openHour_slider {
+            width: 100%;
+            height: 100%;
+            padding: 0.8rem 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            position: relative;
+        }
+        .openHour_track {
+            position: relative;
+            width: 100%;
+            height: 0.4rem;
+            /* margin-top: 5rem; */
+            background-color: #bdc3c7;
+            border-radius: 0.5rem;
+        }
+        .openHour_input {
+            width: calc(100% - 2rem);
+            top: 0.5rem;
+            left: 1rem;
+            position: absolute;
+            pointer-events: none;
+            border: none;
+            z-index: 10;
+            appearance: none;
+            opacity: 0;
+        }
+
+        input::-webkit-slider-thumb {
+            pointer-events: all;
+            width: 2.5rem;
+            height: 1.5rem;
+            background-color: red;
+            cursor: pointer;
+        }
+        .option_text {
+            font-size: .8rem;
+            line-height: 1.25rem;
+            font-weight: 500;
+            padding-left: 17px;
+        }
+        .range {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #0755eb;
+            border-radius: 0.5rem;
+        }
+
+        .thumb {
+            position: absolute;
+            top: 0;
+            transform: translateY(-0.25rem);
+            width: 1rem;
+            height: 1rem;
+            background-color: #0755eb;
+            border-radius: 50%;
+        }
+
+        .left {
+            left: 0;
+        }
+
+        .right {
+            right: 0;
+        }
+        .openHourOption_btn {
+            height: 25px;
+            border-color: dodgerblue;
+            color: black;
+        }
+
+        .openHourOption_btn:hover, .active {
+            color: white;
+            background-color: #0755eb;
+        }
+
+        #menuOption_btn {
+            width: 100%;
+            border-color: #0755eb;
+            box-shadow: none;
+        }
+
+        .selected {
+            width: 100%;
+            border-color: #0755eb;
+            background-color: #0755eb;
+            color: white;
+            box-shadow: none;
+        }
+
+        .search_input {
+            padding: 5px !important;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            width: 271px;
+            height: 45px;
+            border-radius: 30px;
+            border: 2px double #6c757d;
+            background-color: white;
+            box-sizing: border-box;
+        }
+
+    </style>
+</head>
+<body>
+<div class="map_wrap">
+    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+    <div id="nav_wrap">
+        <nav class="nav">
+            <div class="menu-btn">
+                <a href="#" onclick="goToSearchMain(); return false;">
+                    <svg xmlns="http://www.w3.org/2000/svg" color="white" width="30" height="30" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
+                </a>
+            </div>
+        </nav>
+    </div>
+    <div class="menu_wrap">
+        <div id="search_box">
+            <form onsubmit="searchPlaces(); return false;">
+                <div id="search_area" class="bg-white">
+                    <div class="container search_input">
+                        <input id="keyword" type="text" class="form-control shadow-none" style="width: 225px; border: none; background-color: transparent;" placeholder="지역, 카페명.." aria-label="search">
+                        <button id="search_btn" type="submit" class="btn search_btn shadow-none" style="position: absolute; margin-left: 230px; margin-top: 4px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="bg-white" style="text-align: center; margin-top: 10px;">
+                        <a class="btn" style="color: black" onclick="changeHeight();" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="option_area" class="container-fluid">
+                    <div class="collapse" id="collapseExample">
+                        <div id="option_group" class="card card-body">
+                            <div class="option_item">
+                                <div id="menu_name">
+                                    <span class="option_text" style="display: inline-block">메뉴 선택</span>
+                                    <div class="dropdown" style="padding-left: 15px; display: inline-block; width: 150px;">
+                                        <button id="menuOption_btn"type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width: 100%; border-color: royalblue;">
+                                            메뉴 종류
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" onclick="setMenuOption(this.text)" href="#">메뉴 전체</a>
+                                            <a class="dropdown-item" onclick="setMenuOption(this.text)" href="#">아인슈페너</a>
+                                            <a class="dropdown-item" onclick="setMenuOption(this.text)" href="#">아이스크림라떼</a>
+                                            <a class="dropdown-item" onclick="setMenuOption(this.text)" href="#">스무디</a>
+                                            <a class="dropdown-item" onclick="setMenuOption(this.text)" href="#">크로플</a>
+                                            <a class="dropdown-item" onclick="setMenuOption(this.text)" href="#">케이크</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="option_item">
+                                <div id="openHour">
+                                    <span class="option_text" style="display: inline-block">영업 시간</span>
+                                    <span id="range_text" class="option_text" style="display: inline-block; font-size: 0.7rem;"></span>
+                                    <div class="openHour_slider">
+                                        <input type="range" id="openHour-right" class="openHour_input" min="0" max="24" value="24" />
+                                        <input type="range" id="openHour-left" class="openHour_input" min="0" max="24" value="0" />
+                                        <div class="openHour_track">
+                                            <div class="range"></div>
+                                            <div class="thumb left"></div>
+                                            <div class="thumb right"></div>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group" role="group" aria-label="open_option_btn_group" style="padding: 3px 17px; width: 100%;">
+                                        <button id="currentOpen_btn" type="button" class="btn openHourOption_btn" onclick="toggleActive(1)">영업 중</button>
+                                        <button id="dawnOpen_btn" type="button" class="btn openHourOption_btn" onclick="toggleActive(2)">새벽 운영</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="option_item">
+                                <div class="btn-group" role="group" aria-label="option_btn_group" style="padding: 3px 17px; width: 100%;">
+                                    <button type="button" class="btn" style="border-color: dodgerblue; height: 25px;" onclick="optionReset()">초기화</button>
+                                    <button type="button" class="btn" style="border-color: dodgerblue; height: 25px;" onclick="searchPlaces()">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="places_box">
+            <!--        <hr>-->
+            <ul id="placesList"></ul>
+            <div id="pagination"></div>
+        </div>
+    </div>
+</div>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+<script src="/js/slider.js"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=7ca06ae2e205d6d0f938bf2a3b7fd504&libraries=services"></script>
+<script>
+
+    // 마커를 담을 배열입니다
+    var markers = [];
+    var places = {}; // key: 페이지 번호 value: 해당 페이지 카페 목록
+    var keyword;
+    var menuOption = '';
+    let viewMore = false;
+    let isSetOpenHour = 0;
+    let startHour = 0
+    let endHour = 0;
+    let currentOpen = 0;
+    let dawnOpen = 0;
+    var sortType = 1;
+
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+            level: 3 // 지도의 확대 레벨
+        };
+    // 지도를 생성합니다
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
+    var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+
+    if('searchHistory' in sessionStorage && sessionStorage.getItem('searchHistory')){
+
+        $('#keyword').val(sessionStorage.getItem('keyword'));
+
+        if(sessionStorage.getItem('menuOption') !== '') {
+            setMenuOption(sessionStorage.getItem('menuOption'));
+        }
+
+        isSetOpenHour = Number(sessionStorage.getItem('isSetOpenHour'));
+        if(isSetOpenHour) {
+            $('#openHour-left').val(sessionStorage.getItem('startHour' ));
+            $('#openHour-right').val(sessionStorage.getItem('endHour'));
+            $('#openHour-left').click();
+            $('#openHour-right').click();
+        }
+
+        currentOpen = Number(sessionStorage.getItem('currentOpen'));
+        if(currentOpen == 1) {
+            document.getElementById('currentOpen_btn').classList.add('active');
+        }
+
+        dawnOpen = Number(sessionStorage.getItem('dawnOpen'));
+        if(dawnOpen == 1) {
+            document.getElementById('dawnOpen_btn').classList.add('active');
+        }
+
+        searchPlaces();
+        sessionStorage.clear();
+    }
+
+    function toggleActive(num) {
+        var status;
+        let target;
+        if (num == 1) {
+            target = document.getElementById('currentOpen_btn');
+            status = currentOpen;
+            currentOpen = (currentOpen == 0) ? 1 : 0
+        } else if(num == 2){
+            target = document.getElementById('dawnOpen_btn');
+            status = dawnOpen;
+            dawnOpen = (dawnOpen == 0) ? 1 : 0
+        }
+
+        if (status) {
+            target.classList.remove('active');
+        } else {
+            target.classList.add('active');
+        }
+    }
+
+    // 모든 옵션 설정을 초기화하기
+    function optionReset() {
+        // 메뉴 검색 옵션 설정 제거
+        menuOption = '';
+        setMenuOption('메뉴 전체');
+        // 영업 시간 옵션 설정 제거
+        removeOpenHourOption();
+        // 영업 중, 새벽 운영 옵션 설정 제거
+        if(currentOpen == 1){
+            document.getElementById('currentOpen_btn').classList.remove('active');
+            currentOpen = 0;
+        }
+        if(dawnOpen == 1){
+            document.getElementById('dawnOpen_btn').classList.remove('active');
+            dawnOpen = 0;
+        }
+    }
+
+    function setMenuOption(menuItem) {
+
+        var menuOptEl = document.getElementById("menuOption_btn");
+        if (menuItem == '메뉴 전체'){
+            menuOptEl.innerHTML = ' 메뉴 종류 ';
+            menuOptEl.classList.remove('selected');
+        } else {
+            menuOptEl.innerHTML = ' ' + menuItem + ' ';
+            menuOptEl.classList.add('selected');
+        }
+    }
+
+    function changeHeight() {
+        viewMore = !viewMore
+        let element = document.getElementById('places_box');
+        element.style.height = (viewMore) ? '700px' : '930px';
+    }
+    // 새 키워드로 검색을 요청하는 함수입니다
+    function searchPlaces() {
+
+        keyword = document.getElementById('keyword').value;
+        menuOption = document.getElementById('menuOption_btn').innerHTML.trim(); // 값이 없으면 빈문자열 상태
+        if (menuOption == '메뉴 종류') {
+            menuOption = '';
+        }
+        // 영업 시간 옵션을 지정했다면
+        if (isSetOpenHour){
+            startHour = document.getElementById('openHour-left').value; // 영업 시작 시간
+            endHour = document.getElementById('openHour-right').value; // 영업 종료 시간
+        }
+
+        if (!keyword.replace(/^\s+|\s+$/g, '')) {
+            alert('키워드를 입력해주세요!');
+            return false;
+        }
+        // api 는 0페이지가 첫페이지
+        places = {}; // 딕셔너리 초기화
+        searchApi(0);
+    }
+
+    // api 호출하여 현재 페이지에 해당하는 카페 데이터 요청
+    function searchApi(pageNum) {
+
+        $.ajax({
+
+            url: '/search?page=' + pageNum + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
+            data: JSON.stringify({ // 질의어
+                'keyword' : keyword,
+                'menuOption' : menuOption,
+                'startHour' : startHour,
+                'endHour' : endHour,
+                'currentOpen': currentOpen,
+                'dawnOpen' : dawnOpen
+            }),
+            type: 'post',
+            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success : function(data) {
+
+                if (data['totalElements'] == 0) { // 검색 결과가 0건이면
+                    alert('검색 결과가 존재하지 않습니다.');
+                    return;
+
+                } else{
+
+                    places[pageNum+1] = data['content']; // 검색된 카페
+                    // 검색된 카페가 있을 때
+                    // 현재 페이지 검색 결과 출력
+                    // 검색 목록과 마커를 표출합니다
+                    displayPlaces(pageNum+1);
+                    // 페이지 번호를 표출합니다
+                    displayPagination(pageNum+1, data['totalPages']);
+                }
+
+                console.log(data);
+            },
+            error:function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            }
+
+        });
+
+    }
+
+    // 검색 결과 목록과 마커를 표출하는 함수입니다
+    function displayPlaces(page) {
+
+        var listEl = document.getElementById('placesList'),
+            menuEl = document.getElementById('places_box'),
+            fragment = document.createDocumentFragment(),
+            bounds = new kakao.maps.LatLngBounds();
+
+        // 검색 결과 목록에 추가된 항목들을 제거합니다
+        removeAllChildNods(listEl);
+        // 지도에 표시되고 있는 마커를 제거합니다
+        removeMarker();
+
+        for ( var i = 0 ; i<places[page].length; i++ ) {
+
+            // 마커를 생성하고 지도에 표시합니다
+            var placePosition = new kakao.maps.LatLng(places[page][i].y, places[page][i].x),
+                marker = addMarker(placePosition),
+                itemEl = getListItem(i, places[page][i]); // 검색 결과 항목 Element를 생성합니다
+
+            // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+            // LatLngBounds 객체에 좌표를 추가합니다, 추가된 좌표들이 모두 보이도록 범위가 재설정됨
+            bounds.extend(placePosition);
+
+            // 마커와 검색결과 항목에 mouseover 했을때
+            // 해당 장소에 인포윈도우에 장소명을 표시합니다
+            // mouseout 했을 때는 인포윈도우를 닫습니다
+            (function(marker, title) {
+                kakao.maps.event.addListener(marker, 'mouseover', function() {
+                    displayInfowindow(marker, title);
+                });
+
+                kakao.maps.event.addListener(marker, 'mouseout', function() {
+                    infowindow.close();
+                });
+
+                itemEl.onmouseover =  function () {
+                    displayInfowindow(marker, title);
+                };
+
+                itemEl.onmouseout =  function () {
+                    infowindow.close();
+                };
+            })(marker, places[page][i].name);
+
+            fragment.appendChild(itemEl);
+        }
+
+        // 검색결과 항목들을 검색결과 목록 Element에 추가합니다
+        listEl.appendChild(fragment);
+        menuEl.scrollTop = 0;
+
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+        map.setBounds(bounds);
+    }
+
+    // 검색결과 항목을 Element로 반환하는 함수입니다
+    function getListItem(index, place) {
+
+        var el = document.createElement('li'),
+            itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
+                '<div class="info">' +
+                '   <h5>' + place.name + '</h5>';
+
+        if (place.roadAddress) {
+            itemStr += '    <span>' + place.roadAddress + '</span>' +
+                '   <span class="jibun gray">' +  place.address  + '</span>';
+        } else {
+            itemStr += '    <span>' +  place.address  + '</span>';
+        }
+
+        itemStr += '  <span class="tel">' + place.telephone  + '</span>' +
+            '</div>';
+
+        el.innerHTML = itemStr;
+        el.className = 'item list_overlay';
+
+        return el;
+    }
+
+    // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
+    function addMarker(position) {
+        var marker = new kakao.maps.Marker({
+            position: position
+        });
+
+        marker.setMap(map); // 지도 위에 마커를 표출합니다
+        markers.push(marker);  // 배열에 생성된 마커를 추가합니다
+
+        return marker;
+    }
+    // 데이터를 한 번에 가져와서 페이지별로 화면 출력 구현
+    // 검색결과 목록 하단에 페이지번호를 표시는 함수입니다
+    function displayPagination(page, totalPages) {
+        var paginationEl = document.getElementById('pagination'),
+            fragment = document.createDocumentFragment();
+
+        // 기존에 추가된 페이지번호를 삭제합니다
+        while (paginationEl.hasChildNodes()) {
+            paginationEl.removeChild (paginationEl.lastChild);
+        }
+
+        let limitPerPage = 15; // 한 페이지에 15개씩 카페 출력
+        let showPage = 5; // 화면에 보일 페이지 번호 개수
+        let totalPage = totalPages; // 전체 페이지 수
+        if(totalPage > 34) {
+            totalPage = 34; // 전체 페이지는 34까지 제한 -> 최대 15x34 = 510 개의 카페 목록 제공
+        }
+
+        let pageGroupNum = Math.ceil(page / showPage); // 현재 페이지 그룹
+        let lastPage = pageGroupNum * showPage; // 화면에 보여주는 마지막 페이지의 번호
+        if (lastPage > totalPage) {
+            lastPage = totalPage;
+        }
+        let firstPage = (pageGroupNum - 1) * showPage + 1
+
+        let prev = firstPage - 1;
+        let next = lastPage + 1;
+
+        if (prev != 0) { // 이전 페이지가 있으면
+            var el = document.createElement('a');
+            el.href = "#";
+            el.innerHTML = '<';
+            el.onclick = goto(prev, totalPages);
+            fragment.appendChild(el);
+        }
+
+        for (let i=firstPage; i<=lastPage; i++) { // 페이지 번호 생성
+            var el = document.createElement('a');
+            el.href = "#";
+            el.innerHTML = i;
+
+            if (i===page){
+                el.className = 'on';
+            } else {
+                el.onclick = goto(i, totalPages);
+            }
+            fragment.appendChild(el);
+        }
+
+        if (next <= totalPage) { // 다음 페이지가 있으면
+            var el = document.createElement('a');
+            el.href = "#";
+            el.innerHTML = '>';
+            el.onclick = goto(next, totalPages);
+            fragment.appendChild(el);
+        }
+
+        paginationEl.appendChild(fragment);
+    }
+
+    // 페이지 번호 클릭 시 해당 페이지 목록으로 이동시키는 함수
+    function goto(nextPage, totalPages) {
+        return function() {
+            if(nextPage in places) { // 이미 조회했던 페이지라면
+                displayPlaces(nextPage);
+                displayPagination(nextPage, totalPages);
+            } else{
+                searchApi(nextPage-1); // api는 0페이지부터 검색하므로 -1하여 호출
+            }
+        }
+    }
+
+    // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
+    // 인포윈도우에 장소명을 표시합니다
+    function displayInfowindow(marker, title) {
+        var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';
+
+        infowindow.setContent(content);
+        infowindow.open(map, marker);
+    }
+
+    // 지도 위에 표시되고 있는 마커를 모두 제거합니다
+    function removeMarker() {
+        for ( var i = 0; i < markers.length; i++ ) {
+            markers[i].setMap(null);
+        }
+        markers = [];
+    }
+
+    // 검색결과 목록의 자식 Element를 제거하는 함수입니다
+    function removeAllChildNods(el) {
+        while (el.hasChildNodes()) {
+            el.removeChild (el.lastChild);
+        }
+    }
+
+    function goToSearchMain() {
+
+        if($("#placesList").children().length > 0) {
+            sessionStorage.setItem('searchHistory', 1);
+            sessionStorage.setItem('keyword' , keyword);
+            sessionStorage.setItem('menuOption' , menuOption);
+            sessionStorage.setItem('isSetOpenHour', isSetOpenHour);
+            sessionStorage.setItem('startHour' , startHour);
+            sessionStorage.setItem('endHour' , endHour);
+            sessionStorage.setItem('currentOpen', currentOpen);
+            sessionStorage.setItem('dawnOpen' , dawnOpen);
+        }
+
+        location.href = "/cafe/main";
+    }
+
+</script>
+</body>
+</html>
