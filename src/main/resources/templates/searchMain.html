@@ -703,9 +703,9 @@
         bookMarkEl.type = "button";
         bookMarkEl.className = "btn float-right shadow-none";
         bookMarkEl.style.padding = "0px";
-        bookMarkEl.id = "bookmark_" + index;
+        bookMarkEl.id = "bookmark_" + place.id;
         bookMarkEl.name = "bookmark";
-        bookMarkEl.addEventListener('click', () => bookMarkToggle(index, place.id));
+        bookMarkEl.addEventListener('click', () => bookMarkToggle(place.id));
         bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
             '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
             '</svg>'
@@ -719,18 +719,39 @@
     }
 
     // 북마크 버튼을 눌렀을 때
-    function bookMarkToggle(index, cafeId) {
-        var bookMarkEl = document.getElementById('bookmark_' + index);
+    function bookMarkToggle(cafeId) {
+        var bookMarkEl = document.getElementById('bookmark_' + cafeId);
 
         if(bookMarkEl.getAttribute('name') == 'checked_bookmark') {
-            // 북마크 제거도 필요
-            bookMarkEl.name = "bookmark";
-            bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
-                '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
-                '</svg>'
+            deleteBookmark(cafeId, bookMarkEl);
         } else {
             addBookMark(cafeId, bookMarkEl);
         }
+    }
+
+    function deleteBookmark(cafeId, bookMarkEl) {
+
+        $.ajax({
+
+            url: '/bookmark/'+ cafeId + '/delete',
+            type: 'post',
+            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success : function() {
+                // 북마크 제거도 필요
+                bookMarkEl.name = "bookmark";
+                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
+                    '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
+                    '</svg>'
+            },
+            error:function(request){
+                // 권한 없음 에러일 경우 모달창 보여주기
+                $('#loginModal').modal("show");
+                console.log("code:"+request.status);
+            }
+        });
+
     }
 
     // 북마크 추가 요청
