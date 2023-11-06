@@ -281,7 +281,7 @@
                         </svg>
                         <span style="display: block; padding: 5px;">리뷰 쓰기</span>
                     </button>
-                    <button id="bookmark" th:onclick="bookMarkToggle([[${cafe.id}]])" type="button" class="btn shadow-none" style="margin: 10px;">
+                    <button th:id="'bookmark_' + ${cafe.id}" th:onclick="bookMarkToggle([[${cafe.id}]])" type="button" class="btn shadow-none" style="margin: 10px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
                             <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
                         </svg>
@@ -289,7 +289,7 @@
                     </button>
                 </div>
 
-                <!-- review Modal -->
+                <!-- review create Modal -->
                 <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-hidden="true" style="top: 150px;">
                     <div class="modal-dialog" role="document">
                         <form th:onsubmit="postReview([[${cafe.id}]]); return false;" style="margin-top: 15px;">
@@ -317,7 +317,7 @@
                                     <div class="css-gt8b6r epxy3cj0">
                                         <div class="css-k008qs epxy3cj1">
                                             <ul id="previewList" style="list-style: none; padding: 0;"></ul>
-                                            <input type="file" id="image-input" accept="image/*" multiple class="css-1hyfx7x epxy3cj3" onchange="setPreview(this)">
+                                            <input type="file" id="image-input" accept="image/*" multiple class="css-1hyfx7x epxy3cj3" onchange="postFile(this)">
                                             <button id="imageInputBtn" class="epxy3cj4 css-dkf22s e10q62zt1" type="button" onclick="onClickUpload();">사진첨부</button>
                                         </div>
                                     </div>
@@ -363,7 +363,7 @@
                     <a class="nav-item nav-link active" id="nav-detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">정보</a>
                     <a class="nav-item nav-link" id="nav-review-tab" data-toggle="tab" href="#review" th:onclick="getReview([[${cafe.id}]])" role="tab" aria-controls="review" aria-selected="false" >
                         <span>리뷰</span>
-                        <span th:text="${(cafe.reviewCount)}"></span>
+                        <span id="reviewCount" th:text="${(cafe.reviewCount)}"></span>
                     </a>
                     <a class="nav-item nav-link" id="nav-picture-tab" data-toggle="tab" href="#picture" th:onclick="getImageList([[${cafe.id}]])" role="tab" aria-controls="picture" aria-selected="false">사진</a>
                 </div>
@@ -455,6 +455,29 @@
                     </button>
                 </div>
 
+                <!--  review Delete confirmation Modal -->
+                <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-hidden="true" style="top: 150px;">
+                    <div class="modal-dialog" role="document" style="top: 150px; display: flex; justify-content: center;">
+                        <div class="modal-content" style="width: 350px; border-radius: 30px;">
+                            <div class="modal-header" style="border-bottom: none;">
+                                <h5 class="modal-title" id="confirmationModeLabel" style="margin-left: 138px;">알림</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" style="padding: 5px 2rem 15px; text-align: center;">
+                                리뷰를 삭제하시겠습니까?
+                            </div>
+                            <div class="modal-footer" style="margin-top: 11px; padding: 0px; height: 40px;">
+                                <div class="btn-group" role="group" aria-label="modal_btn_group" style="width: 100%;">
+                                    <button type="button" class="btn shadow_none" data-dismiss="modal" style="border-right: 1px solid #dee2e6; width: 100%">아니요</button>
+                                    <button type="button" class="btn shadow-none" style="width: 100%;" onclick="deleteReview()">네</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
             </div>
         </div>
@@ -465,14 +488,7 @@
 
     var reviewPages = {};
     var reviewPageNum = 0;
-    var keyword;
-    var menuOption = '';
-    let isSetOpenHour = 0;
-    let startHour = 0
-    let endHour = 0;
-    let currentOpen = 0;
-    let dawnOpen = 0;
-    let sortType = 1;
+    var reviewList = {};
     var uploadImageFiles = {};
     var imageIndex = 0;
     var imagePages = {};
@@ -547,7 +563,7 @@
     })
 
     function resetReview() {
-        const allStar = document.querySelectorAll('.rating .star')
+        // const allStar = document.querySelectorAll('.rating .star')
         allStar.forEach(i=> {
             i.classList.replace('bxs-star', 'bx-star')
             i.classList.remove('active')
@@ -557,6 +573,11 @@
         imageIndex = 0;
         uploadImageFiles = {};
         $('#previewList').children().remove();
+
+        if($('#reviewModal').attr('name') !== undefined) {
+            $('#reviewModal').removeAttr('name');
+        }
+        $("#imageInputBtn").show();
     }
 
     function onClickUpload(){
@@ -564,39 +585,60 @@
         imageInput.click();
     }
 
-    function setPreview(imageInput) {
-        var reader = new FileReader();
+    // 사용자가 이미지를 등록할 때 서버 요청
+    function postFile(imageInput) {
+        var formData = new FormData();
+        formData.append('file', imageInput.files[0]);
 
-        reader.onload = function(e) {
-            var itemEl = document.createElement('li');
-            itemEl.id = 'preview' + imageIndex;
-            itemEl.style.display = "inline-block";
+        $.ajax({
 
-            var img = document.createElement("img");
-            img.setAttribute("src", e.target.result);
-            img.style.cssText = "width: 100px; height: 100px; margin-right: 10px;";
-            img.id = "uploadFile" + imageIndex;
+            url: '/upload',
+            data: formData,
+            type: 'post',
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            dataType: 'json', // 요청 시 응답 결과 타입
+            success: function (data) {
 
-            var deleteBtn = document.createElement('button');
-            deleteBtn.addEventListener("click", deleteFile);
-            deleteBtn.innerHTML = 'x';
-            deleteBtn.type = "button";
-            deleteBtn.className = "review-delete-btn";
-            deleteBtn.id = 'imageDelete' + imageIndex;
+                uploadImageFiles[imageIndex] = data; // fileDto 저장
+                setPreview(data)
+                imageInput.value = '';
 
-            itemEl.appendChild(img);
-            itemEl.appendChild(deleteBtn);
-            document.querySelector("#previewList").appendChild(itemEl);
-            imageIndex++;
-
-            if(Object.keys(uploadImageFiles).length == 4) {
-                $("#imageInputBtn").hide();
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
             }
-        };
+        });
 
-        reader.readAsDataURL(imageInput.files[0]);
-        uploadImageFiles[imageIndex] = imageInput.files[0];
+    }
 
+    function setPreview(file) {
+
+        var itemEl = document.createElement('li');
+        itemEl.id = 'preview' + imageIndex;
+        itemEl.style.display = "inline-block";
+
+        var img = document.createElement("img");
+        img.setAttribute("src", '/images/' + file.fileStoredName);
+        img.style.cssText = "width: 100px; height: 100px; margin-right: 10px;";
+        img.id = "uploadFile" + imageIndex;
+
+        var deleteBtn = document.createElement('button');
+        deleteBtn.addEventListener("click", deleteFile);
+        deleteBtn.innerHTML = 'x';
+        deleteBtn.type = "button";
+        deleteBtn.className = "review-delete-btn";
+        deleteBtn.id = 'imageDelete' + imageIndex;
+
+        itemEl.appendChild(img);
+        itemEl.appendChild(deleteBtn);
+        document.querySelector("#previewList").appendChild(itemEl);
+        imageIndex++;
+
+        if(Object.keys(uploadImageFiles).length == 4) {
+            $("#imageInputBtn").hide();
+        }
     }
 
     function deleteFile(e) {
@@ -610,36 +652,56 @@
         }
     }
 
-
     // 북마크 버튼을 눌렀을 때
     function bookMarkToggle(cafeId) {
-        var bookMarkEl = document.getElementById('bookmark');
+        var bookMarkEl = document.getElementById('bookmark_' + cafeId);
 
         if(bookMarkEl.getAttribute('name') == 'checked_bookmark') {
-            // 북마크 제거도 필요
-            bookMarkEl.name = "bookmark";
-            bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
-                '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
-                '</svg>\n' +'<span style="display: block; padding: 5px;">담기</span>';
+            deleteBookmark(cafeId, bookMarkEl);
         } else {
             addBookMark(cafeId, bookMarkEl);
         }
     }
 
-    // 북마크 추가 요청
-    function addBookMark(cafeId, bookMarkEl) {
+    function deleteBookmark(cafeId, bookMarkEl) {
 
         $.ajax({
 
-            url: '/bookmark/' + cafeId,
+            url: '/bookmark/'+ cafeId + '/delete',
             type: 'post',
             async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success : function() {
+                // 북마크 제거도 필요
+                bookMarkEl.name = "bookmark";
+                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
+                    '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
+                    '</svg>'
+            },
+            error:function(request){
+                // 권한 없음 에러일 경우 모달창 보여주기
+                $('#loginModal').modal("show");
+                console.log("code:"+request.status);
+            }
+        });
+
+    }
+
+    // 북마크 추가 요청
+    function addBookMark(cafeId, bookMarkEl) {
+        $.ajax({
+
+            url: '/bookmark/'+ cafeId,
+            type: 'post',
+            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
             contentType: "application/json; charset=utf-8",
             success : function() {
                 // 성공적으로 북마크 추가되면 하트를 눌러진 상태로 변경
                 bookMarkEl.name = "checked_bookmark";
-                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">' +
-                    '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>' + '</svg>\n' +'<span style="display: block; padding: 5px;">담기</span>';
+                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">' +
+                    '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>' + '</svg>'
             },
             error:function(request){
                 // 권한 없음 에러일 경우 모달창 보여주기
@@ -650,7 +712,17 @@
     }
 
     function postReview(cafeId) {
-        var formData = new FormData();
+        // 리뷰 업데이트
+        if($('#reviewModal').attr('name') !== undefined) {
+            var reviewId = $('#reviewModal').attr('name');
+            updateReview(cafeId, reviewId);
+        } else {
+            createNewReview(cafeId);
+        }
+    }
+
+    function updateReview(cafeId, reviewId) {
+
         var rate = Number(ratingValue.value); // 별점
         var reviewOpinion = document.getElementById('review_opinion').value; // 리뷰 작성 내용
 
@@ -659,26 +731,70 @@
             return;
         }
 
-        formData.append('rate', rate);
-        formData.append('content', reviewOpinion);
         // 업로드 이미지 파일
+        var imageFiles = []
         for (var key in uploadImageFiles) {
-            formData.append('imageFiles', uploadImageFiles[key]);
+            imageFiles.push(uploadImageFiles[key]);
         }
 
+        // 리뷰 수정
         $.ajax({
-
-            url: '/review/' + cafeId + '/new',
-            data: formData,
+            url: '/review/' + reviewId + '/edit',
+            data: JSON.stringify({ // 질의어
+                'rate' : rate,
+                'content' : reviewOpinion,
+                'imageFiles' : imageFiles
+            }),
             type: 'post',
-            async: false, // 응답받은 결과를 전역변수에 저장하기 위해
-            enctype: 'multipart/form-data',
-            processData: false,
-            contentType: false,
-            success: function () {
+            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                alert('리뷰를 수정하였습니다.');
+                $('#reviewModal').modal('hide');
+                reviewList[reviewId] = data;
+                location.reload();
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
 
-                document.querySelector('#reviewModal .close').click();
 
+    }
+
+    function createNewReview(cafeId) {
+        var rate = Number(ratingValue.value); // 별점
+        var reviewOpinion = document.getElementById('review_opinion').value; // 리뷰 작성 내용
+
+        if(rate == 0) {
+            alert('별점을 눌러주세요!');
+            return;
+        }
+
+        // 업로드 이미지 파일
+        var imageFiles = []
+        for (var key in uploadImageFiles) {
+            imageFiles.push(uploadImageFiles[key]);
+        }
+
+        // 리뷰 작성
+        $.ajax({
+            url: '/review/' + cafeId + '/new',
+            data: JSON.stringify({ // 질의어
+                'rate' : rate,
+                'content' : reviewOpinion,
+                'imageFiles' : imageFiles
+            }),
+            type: 'post',
+            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
+            dataType: 'json', // 요청 시 응답 결과 타입
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                alert('리뷰를 등록하였습니다.');
+                $('#reviewModal').modal('hide');
+                reviewList[data.reviewId] = data;
+                location.reload();
             },
             error: function (request, status, error) {
                 alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
@@ -689,9 +805,9 @@
 
     function getReview(cafeId) {
 
-        if(reviewPageNum in reviewPages) {
-            return;
-        }
+        // if(reviewPageNum in reviewPages) {
+        //     return;
+        // }
 
         $.ajax({
 
@@ -707,7 +823,12 @@
                     return;
 
                 } else {
-                    reviewPages[reviewPageNum] = data['content'];
+
+                    var contents = data['content'];
+                    for(var i=0; i<contents.length; i++) {
+                        reviewList[contents[i].reviewId] = contents[i];
+                    }
+                    // reviewPages[reviewPageNum] = data['content'];
                     displayReviews(data['content'], data['totalPages']);
                     if(data['totalPages'] > reviewPageNum+1) {
                         $('#review-more').show();
@@ -756,12 +877,20 @@
 
         var rateInfoEl = document.createElement('div');
         rateInfoEl.className = "rate_info";
+        rateInfoEl.ariaLabel = review.rate;
         var starEl = getStarEl(review.rate);
         rateInfoEl.innerHTML = starEl;
         reviewInfoEl.appendChild(rateInfoEl);
 
+        var btnGroupEl = document.createElement('div');
+        var innerBtn = '<button class="btn" onclick="openUpdateReviewModal(this)">수정</button>\n' + '<button class="btn" onclick="openConfirmationModal(this)">삭제</button>'
+        btnGroupEl.innerHTML = innerBtn;
+        btnGroupEl.className = "reviewEditButton";
+        btnGroupEl.style.float = "right";
+
         item.appendChild(writerInfoEl);
         item.appendChild(reviewInfoEl);
+        item.appendChild(btnGroupEl);
 
         if(review.images.length > 0){
             var photoInfoEl = document.createElement('div');
@@ -823,11 +952,117 @@
         photoItem.style.padding = "3px";
 
         var imgEl = document.createElement('img');
-        imgEl.src = '/images/' + image;
+        imgEl.src = '/images/' + image.fileStoredName;
         imgEl.style.cssText = "width: 140px; height: 140px;";
         photoItem.appendChild(imgEl);
 
         return photoItem;
+    }
+
+    function openConfirmationModal(target) {
+        // 확인 모달창 띄우기
+        var reviewId = target.parentNode.parentNode.id;
+        $('#confirmationModal').attr('name', reviewId);
+        $('#confirmationModal').modal('show');
+    }
+
+    function deleteReview() {
+
+        var reviewId = $('#confirmationModal').attr('name');
+
+        $.ajax({
+
+            url: '/review/' + reviewId + '/delete',
+            type: 'get',
+            success: function (data) {
+                alert('리뷰를 삭제하였습니다.');
+                $('#confirmationModal').removeAttr('name');
+                $('#confirmationModal').modal('hide');
+                $('#' + reviewId).remove(); // 삭제된 리뷰 노드 제거
+                var before = $('#reviewCount').text();
+                $('#reviewCount').text(Number(before)-1);
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
+    }
+
+    function openUpdateReviewModal(target) {
+        var reviewId = target.parentNode.parentNode.id;
+        $('#reviewModal').attr('name', reviewId);
+        $('#reviewModal').modal('show');
+        getBeforeReview(reviewId);
+    }
+
+    function getBeforeReview(reviewId) {
+
+        // 이전에 작성되었던 리뷰 내용
+        var review = reviewList[reviewId];
+        // var rate = $('#' + reviewId + ' .rate_info').attr('aria-label');
+        // var content =  $('#' + reviewId + ' .review_content p').html();
+        var rate = review.rate;
+        var content = review.content;
+        var images = review.images;
+
+        allStar[Number(rate)-1].click(); // 별점 누르기
+        $('#reviewModal #review_opinion').val(content.trim());
+
+        // var photoList = $('#' + reviewId + ' .photo_item img');
+        // for (var i=0; i<photoList.length; i++) {
+        //     var itemEl = document.createElement('li');
+        //     itemEl.id = 'preview' + imageIndex;
+        //     itemEl.style.display = "inline-block";
+        //
+        //     var img = document.createElement("img");
+        //     img.src = photoList[i].getAttribute('src');
+        //     img.style.cssText = "width: 100px; height: 100px; margin-right: 10px;";
+        //     img.id = "uploadFile" + imageIndex;
+        //
+        //     var deleteBtn = document.createElement('button');
+        //     deleteBtn.addEventListener("click", deleteFile);
+        //     deleteBtn.innerHTML = 'x';
+        //     deleteBtn.type = "button";
+        //     deleteBtn.className = "review-delete-btn";
+        //     deleteBtn.id = 'imageDelete' + imageIndex;
+        //
+        //     itemEl.appendChild(img);
+        //     itemEl.appendChild(deleteBtn);
+        //     document.querySelector("#previewList").appendChild(itemEl);
+        //
+        //     uploadImageFiles[imageIndex] = img.src;
+        //     imageIndex++;
+        // }
+
+        for (var i=0; i<images.length; i++) {
+            var itemEl = document.createElement('li');
+            itemEl.id = 'preview' + imageIndex;
+            itemEl.style.display = "inline-block";
+
+            var img = document.createElement("img");
+            img.src = '/images/' + images[i].fileStoredName;
+            img.style.cssText = "width: 100px; height: 100px; margin-right: 10px;";
+            img.id = "uploadFile" + imageIndex;
+
+            var deleteBtn = document.createElement('button');
+            deleteBtn.addEventListener("click", deleteFile);
+            deleteBtn.innerHTML = 'x';
+            deleteBtn.type = "button";
+            deleteBtn.className = "review-delete-btn";
+            deleteBtn.id = 'imageDelete' + imageIndex;
+
+            itemEl.appendChild(img);
+            itemEl.appendChild(deleteBtn);
+            document.querySelector("#previewList").appendChild(itemEl);
+
+            uploadImageFiles[imageIndex] = images[i];
+            imageIndex++;
+        }
+
+        if(Object.keys(uploadImageFiles).length == 4) {
+            $("#imageInputBtn").hide();
+        }
+
     }
 
     function getImageList(cafeId) {
