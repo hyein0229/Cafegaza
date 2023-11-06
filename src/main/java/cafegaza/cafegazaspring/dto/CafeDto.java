@@ -1,18 +1,12 @@
 package cafegaza.cafegazaspring.dto;
 
 import cafegaza.cafegazaspring.domain.Cafe;
-import cafegaza.cafegazaspring.domain.Menu;
-import cafegaza.cafegazaspring.domain.OpenHour;
-import cafegaza.cafegazaspring.domain.Review;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder

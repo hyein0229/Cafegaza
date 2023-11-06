@@ -6,8 +6,7 @@ import cafegaza.cafegazaspring.domain.OpenHour;
 import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.dto.KakaoSearchApiResDto;
 import cafegaza.cafegazaspring.repository.CafeRepository;
-import cafegaza.cafegazaspring.repository.OpenHourRepository;
-import cafegaza.cafegazaspring.repository.ReviewImageRepository;
+import cafegaza.cafegazaspring.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +26,7 @@ public class CafeSearchService {
 
     private final CafeRepository cafeRepository;
     private final KakaoOpenApiManager kakaoOpenApiManager;
-    private final ReviewImageRepository reviewImageRepository;
+    private final FileRepository fileRepository;
 
     /**
      *사용자가 입력한 질의어로 카페 검색
@@ -114,7 +113,7 @@ public class CafeSearchService {
 
      public Page<String> getImages(Long cafeId, Pageable pageable) {
         Cafe findCafe = cafeRepository.findById(cafeId).get();
-        return reviewImageRepository.findFilePathByCafe(findCafe, pageable);
+        return fileRepository.findFilePathByCafe(findCafe, pageable);
 
      }
 
