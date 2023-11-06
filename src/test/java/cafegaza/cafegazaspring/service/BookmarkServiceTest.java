@@ -24,7 +24,7 @@ public class BookmarkServiceTest {
         Cafe cafe = cafeRepository.findById(1L).orElseThrow();
         Member member = memberRepository.findById(68L).orElseThrow();  // test를 위해 로컬에 임의로 생성해 놓은 데이터 사용
 
-        if(bookmarkService.addBookmark(CafeDto.toDto(cafe), MemberDto.toDto(member))) {
+        if(bookmarkService.addBookmark(cafe.getCafeId(), member.getId())) {
             System.out.println("bookmark add success");
         }
         else {
@@ -37,7 +37,7 @@ public class BookmarkServiceTest {
         Cafe cafe = cafeRepository.findById(1L).orElseThrow();
         Member member = memberRepository.findById(68L).orElseThrow();
 
-        bookmarkService.addBookmark(CafeDto.toDto(cafe), MemberDto.toDto(member));
+        bookmarkService.addBookmark(cafe.getCafeId(), member.getId());
 
         if(bookmarkService.delBookmark(CafeDto.toDto(cafe), MemberDto.toDto(member))) {
             System.out.println("bookmark del success");

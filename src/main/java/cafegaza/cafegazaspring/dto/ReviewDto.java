@@ -19,9 +19,8 @@ import java.util.List;
 public class ReviewDto {
 
     private Long reviewId;
-    private Long cafeId;
-    private Long memberId;
-    private String nickname; // 작성자 이름
+    private CafeDto cafe;
+    private MemberDto member; // 작성자
     private String content; // 리뷰 내용
     private double rate; // 별점
     private List<String> images; // 리뷰 이미지 저장명
@@ -31,9 +30,8 @@ public class ReviewDto {
     public static ReviewDto toDto(Review review) {
         return ReviewDto.builder()
                 .reviewId(review.getReviewId())
-                .cafeId(review.getCafe().getCafeId())
-                .memberId(review.getMember().getId())
-                .nickname(review.getMember().getNickname())
+                .cafe(CafeDto.toDto(review.getCafe()))
+                .member(MemberDto.toDto(review.getMember()))
                 .content(review.getContent())
                 .rate(review.getRate())
                 .images(review.getReviewImages().stream().map(reviewImage -> reviewImage.getFileStoredName()).toList())

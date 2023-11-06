@@ -37,7 +37,13 @@ public class Cafe extends BaseTime {
     private double y; // 위도
 
     @ColumnDefault("0") // 0으로 초기화
-    private int bookmarkCount; // 즐겨찾기 개수
+    private int bookmarkCount; // 즐겨찾기 수
+
+    @ColumnDefault("0")
+    private double rate; // 벌점
+
+    @ColumnDefault("0")
+    private int reviewCount; // 리뷰 수
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.REMOVE)
     @Builder.Default
@@ -50,5 +56,20 @@ public class Cafe extends BaseTime {
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
     @Builder.Default
     private List<OpenHour> openHourList = new ArrayList<>(); // 영업 시간
+
+    // 평균 별점 업데이트
+    public void updateRate(double rate) {
+        this.rate = rate;
+    }
+
+    public void addReview(Review review) {
+        this.reviews.add(review);
+        this.reviewCount += 1;
+    }
+
+    public void deleteReview(Review review) {
+        this.reviews.remove(review);
+        this.reviewCount -= 1;
+    }
 
 }
