@@ -1,8 +1,6 @@
 package cafegaza.cafegazaspring.dto;
 
-import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.Review;
-import jakarta.persistence.AssociationOverride;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +21,7 @@ public class ReviewDto {
     private MemberDto member; // 작성자
     private String content; // 리뷰 내용
     private double rate; // 별점
-    private List<String> images; // 리뷰 이미지 저장명
+    private List<FileDto> images; // 리뷰 이미지
     private LocalDateTime createdDate; // 작성일
 
     // entity -> dto
@@ -34,7 +32,7 @@ public class ReviewDto {
                 .member(MemberDto.toDto(review.getMember()))
                 .content(review.getContent())
                 .rate(review.getRate())
-                .images(review.getReviewImages().stream().map(reviewImage -> reviewImage.getFileStoredName()).toList())
+                .images(review.getReviewImages().stream().map(reviewImage -> FileDto.toDto(reviewImage)).toList())
                 .createdDate(review.getCreatedDate())
                 .build();
     }

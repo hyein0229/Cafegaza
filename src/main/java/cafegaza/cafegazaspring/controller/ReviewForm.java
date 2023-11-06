@@ -1,5 +1,6 @@
 package cafegaza.cafegazaspring.controller;
 
+import cafegaza.cafegazaspring.dto.FileDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,7 +24,7 @@ public class ReviewForm {
     @NotNull
     private int rate; // 별점
 
-    private List<MultipartFile> imageFiles = new ArrayList<>(); // 리뷰 이미지 파일
+    private List<FileDto> imageFiles = new ArrayList<>(); // 리뷰 이미지 파일
 
 
 }

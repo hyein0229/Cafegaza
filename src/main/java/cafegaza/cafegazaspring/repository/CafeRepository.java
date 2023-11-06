@@ -28,4 +28,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long>, CafeRepositor
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Cafe c SET c.bookmarkCount= c.bookmarkCount-1 WHERE c.cafeId= :cafeId")
     int updateBookmarkCountForDel(Long cafeId);
+
+    @Query("SELECT AVG(r.rate) FROM Review r where r.cafe = :cafe")
+    double findAvgRate(Cafe cafe);
 }
