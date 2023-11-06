@@ -42,7 +42,8 @@ public class BookmarkService {
             cafeRepository.updateBookmarkCountForAdd(cafe.getCafeId());
 
             BookmarkDto bookmarkDto = new BookmarkDto();
-            bookmarkDto.setCafe(CafeDto.toDto(cafe)); bookmarkDto.setMember(MemberDto.toDto(member));
+            bookmarkDto.setCafe(CafeDto.toDto(cafe));
+            bookmarkDto.setMember(MemberDto.toDto(member));
             bookmarkRepository.save(bookmarkDto.toEntity());
 
             return true;
@@ -53,17 +54,17 @@ public class BookmarkService {
     /*
         즐겨찾기 삭제
      */
-    public boolean delBookmark(CafeDto cafe, MemberDto member) {
-        cafeRepository.findById(cafe.getId()).orElseThrow(
+    public boolean delBookmark(Long cafeId, Long memberId) {
+        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]카페를 찾을 수 없습니다."));
-        memberRepository.findById(member.getId()).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]사용자를 찾을 수 없습니다."));
 
         // 즐겨찾기가 되어있다면, 즐겨찾기 삭제 실시
-        if(bookmarkRepository.findByCafeAndMember(cafe.toEntity(), member.toEntity()) != null) {
-            cafeRepository.updateBookmarkCountForDel(cafe.getId());
+        if(bookmarkRepository.findByCafeAndMember(cafe, member) != null) {
+            cafeRepository.updateBookmarkCountForDel(cafe.getCafeId());
 
-            Bookmark bookmark = bookmarkRepository.findByCafeAndMember(cafe.toEntity(), member.toEntity());
+            Bookmark bookmark = bookmarkRepository.findByCafeAndMember(cafe, member);
             bookmarkRepository.delete(bookmark);
 
             return true;

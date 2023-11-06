@@ -31,4 +31,17 @@ public class BookmarkController {
         return new ResponseEntity<>(HttpStatus.OK); // 성공적으로 요청 처리됨
     }
 
+    /**
+     * 북마크 삭제하기
+     */
+    @PostMapping("/bookmark/{cafeId}/delete")
+    public ResponseEntity deleteBookMark(@SessionAttribute(name = "sessionId", required = false) Long memberId, @PathVariable("cafeId") Long cafeId) {
+        if(memberId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 로그인이 되어있지 않아 권한 없음
+        }
+
+        bookmarkService.delBookmark(cafeId, memberId);
+        return new ResponseEntity<>(HttpStatus.OK); // 성공적으로 요청 처리됨
+    }
+
 }
