@@ -13,7 +13,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewImage extends UploadFile {
+@DiscriminatorValue("R")
+public class ReviewImage extends File {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")

@@ -1,14 +1,13 @@
 package cafegaza.cafegazaspring.service;
 
-import cafegaza.cafegazaspring.domain.uploadFile.BbsUploadFile;
-import cafegaza.cafegazaspring.domain.uploadFile.UploadFile;
-import cafegaza.cafegazaspring.domain.uploadFile.ReviewImage;
+import cafegaza.cafegazaspring.domain.uploadFile.File;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class FileHandler {
@@ -16,7 +15,9 @@ public class FileHandler {
     /**
         사용자가 업로드한 파일을 파일 엔티티로 변환
      */
-    public UploadFile saveFiles(MultipartFile multipartFile, int opt) throws Exception {
+    public Map<String, String> saveFiles(MultipartFile multipartFile) throws Exception {
+
+        Map<String, String> fileInfo = new HashMap<>();
 
         String origFileName = multipartFile.getOriginalFilename(); // 파일 이름 가져오기
         String extension = getExtension(origFileName);
@@ -29,9 +30,9 @@ public class FileHandler {
 
         // 서버에 저장될 위치
         String savedPath = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\images";
-        if(!new File(savedPath).exists()){ // files 디렉토리가 존재하지 않으면 생성
+        if(!new java.io.File(savedPath).exists()){ // files 디렉토리가 존재하지 않으면 생성
             try{
-                new File(savedPath).mkdir();
+                new java.io.File(savedPath).mkdir();
             }catch(Exception e){
                 e.getStackTrace();
             }
@@ -39,22 +40,12 @@ public class FileHandler {
 
         // 경로에 파일 저장
         String filePath = savedPath + "\\" + filename + "." + extension;
-        multipartFile.transferTo(new File(filePath));
+        multipartFile.transferTo(new java.io.File(filePath));
 
-        if (opt == 1) {
-            return ReviewImage.builder()
-                    .fileOrigName(origFileName)
-                    .fileStoredName(filename + "." + extension)
-                    .filePath(filePath)
-                    .build();
-        } else if(opt == 2) {
-            return BbsUploadFile.builder()
-                    .fileOrigName(origFileName)
-                    .fileStoredName(filename + "." + extension)
-                    .filePath(filePath)
-                    .build();
-        }
-        return null;
+        fileInfo.put("fileOrigName", origFileName);
+        fileInfo.put("fileStoredName", filename + "." + extension);
+        fileInfo.put("filePath", filePath);
+        return fileInfo;
     }
 
     /**

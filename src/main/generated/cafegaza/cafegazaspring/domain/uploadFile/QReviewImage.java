@@ -22,7 +22,9 @@ public class QReviewImage extends EntityPathBase<ReviewImage> {
 
     public static final QReviewImage reviewImage = new QReviewImage("reviewImage");
 
-    public final QUploadFile _super = new QUploadFile(this);
+    public final QFile _super = new QFile(this);
+
+    public final cafegaza.cafegazaspring.domain.QCafe cafe;
 
     //inherited
     public final StringPath fileOrigName = _super.fileOrigName;
@@ -56,6 +58,7 @@ public class QReviewImage extends EntityPathBase<ReviewImage> {
 
     public QReviewImage(Class<? extends ReviewImage> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.cafe = inits.isInitialized("cafe") ? new cafegaza.cafegazaspring.domain.QCafe(forProperty("cafe")) : null;
         this.review = inits.isInitialized("review") ? new cafegaza.cafegazaspring.domain.QReview(forProperty("review"), inits.get("review")) : null;
     }
 
