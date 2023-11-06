@@ -63,7 +63,7 @@
             left: 53px;
             bottom: 0;
             width: 320px;
-            height: 930px;
+            height: 908px;
             margin: 10px 0;
             overflow-y: auto;
             box-sizing: border-box;
@@ -139,7 +139,7 @@
         #pagination .on {font-weight: bold; cursor: default;color:#777;}
         #option_group {
             align-items: center;
-            height: 230px;
+            height: 190px;
             margin: 3px 12px 10px 12px;
             padding: 8px;
         }
@@ -256,6 +256,21 @@
             color: white;
             box-shadow: none;
         }
+        #sort_option {
+            position: relative;
+            overflow: hidden;
+            margin: 5px 0;
+            text-align: center;
+        }
+
+        .sort_btn {
+            background-color: #e7e7e7;
+            border: 1px solid #9d9393;
+            border-radius: 15px;
+            box-shadow: none;
+            width: 110px;
+            height: 25px;
+        }
 
         .search_input {
             padding: 5px !important;
@@ -264,7 +279,7 @@
             flex-wrap: wrap;
             align-items: stretch;
             width: 271px;
-            height: 45px;
+            height: 32px;
             border-radius: 30px;
             border: 2px double #6c757d;
             background-color: white;
@@ -292,8 +307,8 @@
             <form onsubmit="searchPlaces(); return false;">
                 <div id="search_area" class="bg-white">
                     <div class="container search_input">
-                        <input id="keyword" type="text" class="form-control shadow-none" style="width: 225px; border: none; background-color: transparent;" placeholder="지역, 카페명.." aria-label="search">
-                        <button id="search_btn" type="submit" class="btn search_btn shadow-none" style="position: absolute; margin-left: 230px; margin-top: 4px;">
+                        <input id="keyword" type="text" class="form-control shadow-none" style="width: 225px; border: none; background-color: transparent; margin-top: -6px;" placeholder="지역, 카페명.." aria-label="search">
+                        <button id="search_btn" type="submit" class="btn search_btn shadow-none" style="position: absolute; margin-left: 230px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                             </svg>
@@ -358,6 +373,11 @@
                     </div>
                 </div>
             </form>
+        </div>
+
+        <div id="sort_option" style="display: none;">
+            <button id="option_1" onclick="setSortOption(this)" type="button" class="btn sort_btn" style="background-color: #0755eb; color: white;" >별점 순</button>
+            <button id="option_2" onclick="setSortOption(this)" type="button" class="btn sort_btn " >리뷰 순</button>
         </div>
 
         <div id="places_box">
@@ -448,6 +468,27 @@
         }
     }
 
+    function setSortOption(option) {
+        var optionGroup = document.getElementById('sort_option').children;
+        var index = option.id.split('_')[1];
+
+        if(sortType == index) {
+            return;
+        }
+
+        sortType = index;
+        searchPlaces();
+
+        for (var i=0; i < optionGroup.length; i++) {
+            if (optionGroup[i].id.split('_')[1] != index) {
+                optionGroup[i].removeAttribute('style');
+                // } else {
+                option.style.backgroundColor = "#0755eb";
+                option.style.color = "white";
+            }
+        }
+    }
+
     // 모든 옵션 설정을 초기화하기
     function optionReset() {
         // 메뉴 검색 옵션 설정 제거
@@ -481,7 +522,7 @@
     function changeHeight() {
         viewMore = !viewMore
         let element = document.getElementById('places_box');
-        element.style.height = (viewMore) ? '700px' : '930px';
+        element.style.height = (viewMore) ? '700px' : '908px';
     }
     // 새 키워드로 검색을 요청하는 함수입니다
     function searchPlaces() {
@@ -518,7 +559,8 @@
                 'startHour' : startHour,
                 'endHour' : endHour,
                 'currentOpen': currentOpen,
-                'dawnOpen' : dawnOpen
+                'dawnOpen' : dawnOpen,
+                'sortType' : sortType
             }),
             type: 'post',
             async : false, // 응답받은 결과를 전역변수에 저장하기 위해
@@ -605,6 +647,7 @@
 
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
         map.setBounds(bounds);
+        $("#sort_option").show();
     }
 
     // 검색결과 항목을 Element로 반환하는 함수입니다
