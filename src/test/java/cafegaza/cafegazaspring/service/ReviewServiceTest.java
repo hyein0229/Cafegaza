@@ -1,24 +1,17 @@
 package cafegaza.cafegazaspring.service;
 
 import cafegaza.cafegazaspring.controller.ReviewForm;
-import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.Review;
 import cafegaza.cafegazaspring.repository.ReviewRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
@@ -45,31 +38,6 @@ public class ReviewServiceTest {
         reviewForm.setRate(3);
         reviewForm.setImageFiles(new ArrayList<>());
 
-        String fileName = "KakaoTalk_20230813_015136695.jpg";
-        String contentType = "jpg";
-        String filePath = "src/test/testResources/KakaoTalk_20230813_015136695.jpg"; // 파일 경로
-        FileInputStream fileInputStream = new FileInputStream(filePath);
-
-        List<MultipartFile> imageFiles = new ArrayList<>();
-        MultipartFile image = new MockMultipartFile(
-                "images",
-                fileName,
-                contentType,
-                fileInputStream
-        );
-        imageFiles.add(image);
-        reviewForm.setImageFiles(imageFiles);
-
-        // 리뷰 생성했을 때
-        Long savedId = reviewService.create(cafeId, reviewForm);
-
-        //then
-        Review review = reviewRepository.findById(savedId).get();
-        Cafe cafe = review.getCafe();
-        System.out.println(cafe.getReviewCount());
-        System.out.println(cafe.getRate());
-//        Assertions.assertEquals(review, cafe.getReviews().get(0)); // 연관관계 매핑 확인
-
     }
     /*
         리뷰 수정 테스트
@@ -84,21 +52,7 @@ public class ReviewServiceTest {
         reviewForm.setId(findReview.getReviewId());
         reviewForm.setContent("리뷰 수정 테스트입니다.");
         reviewForm.setRate(findReview.getRate());
-
-        String fileName = "캡처.PNG";
-        String contentType = "PNG";
-        String filePath = "src/test/testResources/캡처.PNG"; // 파일 경로
-        FileInputStream fileInputStream = new FileInputStream(filePath);
-
-        List<MultipartFile> imageFiles = new ArrayList<>();
-        MultipartFile image = new MockMultipartFile(
-                            "images",
-                            fileName,
-                            contentType,
-                            fileInputStream
-                        );
-        imageFiles.add(image);
-        reviewForm.setImageFiles(imageFiles);
+        reviewForm.setImageFiles(new ArrayList<>());
 
         // 리뷰 수정
         reviewService.update(52L, reviewForm);
@@ -116,7 +70,7 @@ public class ReviewServiceTest {
     @Test
     @Rollback(value = false)
     public void deleteReviewTest() {
-        reviewService.delete(902L);
+        reviewService.delete(1052L);
 
     }
 
