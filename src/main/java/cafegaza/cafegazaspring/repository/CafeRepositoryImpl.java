@@ -1,9 +1,8 @@
 package cafegaza.cafegazaspring.repository;
 
 import cafegaza.cafegazaspring.controller.SearchQuery;
-import cafegaza.cafegazaspring.domain.Cafe;
-import cafegaza.cafegazaspring.domain.QMenu;
-import cafegaza.cafegazaspring.domain.QOpenHour;
+import cafegaza.cafegazaspring.domain.*;
+import com.querydsl.core.Query;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
@@ -17,10 +16,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
 import static cafegaza.cafegazaspring.domain.QCafe.cafe;
+import static cafegaza.cafegazaspring.domain.QReview.review;
 
 @RequiredArgsConstructor
 public class CafeRepositoryImpl implements CafeRepositoryCustom{
@@ -28,6 +29,7 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
     private final JPAQueryFactory queryFactory;
     QMenu menu = QMenu.menu;
     QOpenHour openHour = QOpenHour.openHour;
+    QBookmark bookmark = QBookmark.bookmark;
 
     /**
      * 다중 조건으로 카페 검색하기
@@ -89,6 +91,28 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                 .fetch().size();
 
         return new PageImpl<Cafe>(cafeList, pageable, totalCount);
+    }
+
+    public List<Cafe> findPopularPlaces()  {
+//        List<Cafe> result = queryFactory.select(cafe)
+//                .from(cafe)
+//                .leftJoin(bookmark).on(bookmark.cafe.eq(cafe))
+//                .where(bookmark.createdDate.gt(LocalDateTime.now().minusMonths(1)))
+//                .groupBy(bookmark.cafe)
+//                .orderBy(bookmark.count().desc())
+//                .limit(15)
+//                .fetch();
+
+        List<Cafe> result = queryFactory.select(cafe)
+                .from(cafe)
+                .leftJoin(review).on(review.cafe.eq(cafe))
+                .where(review.createdDate.gt(LocalDateTime.now().minusMonths(1)))
+                .groupBy(review.cafe)
+                .orderBy(review.count().desc())
+                .limit(15)
+                .fetch();
+
+        return result;
     }
 
     // 행정구역명으로 찾기
