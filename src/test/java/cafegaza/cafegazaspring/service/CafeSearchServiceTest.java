@@ -15,10 +15,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @SpringBootTest
+@Transactional
 public class CafeSearchServiceTest {
 
     @Autowired CafeSearchService cafeSearchService;
@@ -45,7 +47,7 @@ public class CafeSearchServiceTest {
         searchQuery.setMenuOption("");
         searchQuery.setMaxPrice(0);
 
-        Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable);
+        Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, null, pageable);
 
 //        System.out.println(searchCafe.getTotalElements());
 //        System.out.println(searchCafe.getContent().size());
@@ -65,7 +67,7 @@ public class CafeSearchServiceTest {
         searchQuery.setMenuOption("아메리카노");
         searchQuery.setMaxPrice(0);
 
-        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
+        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery,null, pageable).map(cafeDto -> cafeDto.toEntity());
 
         for(Cafe cafe : searchCafe) {
             List<Menu> menus = menuRepository.findByCafe(cafe);
@@ -85,7 +87,7 @@ public class CafeSearchServiceTest {
         searchQuery.setMenuOption("");
         searchQuery.setMaxPrice(0);
 
-        Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable);
+        Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, null, pageable);
 
         Assertions.assertEquals(78, searchCafe.getTotalElements());
         Assertions.assertEquals(15, searchCafe.getSize());
@@ -118,7 +120,7 @@ public class CafeSearchServiceTest {
         searchQuery.setKeyword("합정역 스타벅스"); // 키워드 쿼리 지정
         searchQuery.setMenuOption("아메리카노");
 
-        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
+        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, null, pageable).map(cafeDto -> cafeDto.toEntity());
 
         for(Cafe cafe : searchCafe) {
             List<Menu> menus = menuRepository.findByCafe(cafe);
@@ -140,7 +142,7 @@ public class CafeSearchServiceTest {
         searchQuery.setMenuOption("아메리카노");
         searchQuery.setMaxPrice(7000); // maxPrice -> 7000원으로 설정
 
-        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
+        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, null, pageable).map(cafeDto -> cafeDto.toEntity());
 
         for(Cafe cafe : searchCafe) {
             List<Menu> menus = menuRepository.findByCafe(cafe);
@@ -161,7 +163,7 @@ public class CafeSearchServiceTest {
         searchQuery.setStartHour(780);
         searchQuery.setEndHour(840);
 
-        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable).map(cafeDto -> cafeDto.toEntity());
+        Page<Cafe> searchCafe = cafeSearchService.searchCafe(searchQuery, null, pageable).map(cafeDto -> cafeDto.toEntity());
 
         for(Cafe cafe : searchCafe) {
             List<OpenHour> openHourList = cafe.getOpenHourList();
