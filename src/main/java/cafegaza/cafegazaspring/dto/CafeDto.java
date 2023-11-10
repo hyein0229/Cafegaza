@@ -28,8 +28,9 @@ public class CafeDto {
     private int bookmarkCount;
     private double rate;
     private int reviewCount;
-    private boolean isOpen;
     private List<MenuDto> menus; // 메뉴
+    private boolean isOpen;
+    private boolean isBookmark; // 북마크 여부
 
     //-- dto -> entity 변환 메소드 --//
     public Cafe toEntity() {
@@ -74,6 +75,9 @@ public class CafeDto {
 
     public void setIsOpen(boolean isOpen) {
         this.isOpen = isOpen;
+    }
+    public void setIsBookmark (boolean isBookmark){
+        this.isBookmark = isBookmark;
     }
 
 
