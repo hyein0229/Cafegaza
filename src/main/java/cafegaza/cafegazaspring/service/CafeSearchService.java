@@ -2,11 +2,14 @@ package cafegaza.cafegazaspring.service;
 
 import cafegaza.cafegazaspring.controller.SearchQuery;
 import cafegaza.cafegazaspring.domain.Cafe;
+import cafegaza.cafegazaspring.domain.Member;
 import cafegaza.cafegazaspring.domain.OpenHour;
 import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.dto.KakaoSearchApiResDto;
+import cafegaza.cafegazaspring.repository.BookmarkRepository;
 import cafegaza.cafegazaspring.repository.CafeRepository;
 import cafegaza.cafegazaspring.repository.FileRepository;
+import cafegaza.cafegazaspring.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,11 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +28,18 @@ public class CafeSearchService {
     private final CafeRepository cafeRepository;
     private final KakaoOpenApiManager kakaoOpenApiManager;
     private final FileRepository fileRepository;
+    private final MemberRepository memberRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     /**
      *사용자가 입력한 질의어로 카페 검색
      */
-    public Page<CafeDto> searchCafe(SearchQuery searchQuery, Pageable pageable) throws Exception {
+    public Page<CafeDto> searchCafe(SearchQuery searchQuery, Long memberId, Pageable pageable) throws Exception {
+
+        Member member = null;
+        if(memberId != null) {
+            member = memberRepository.findById(memberId).get();
+        }
 
         // 검색할 키워드
         Page<Cafe> searchResult = null;
@@ -63,7 +71,19 @@ public class CafeSearchService {
         // DB 조회 결과
         searchResult = cafeRepository.findByMultipleCond(region, keyword, centerCoord, searchQuery, pageable);
 
-        return new CafeDto().toDtoList(searchResult);
+        List<CafeDto> resultDtos = new ArrayList<>();
+        for(Cafe cafe: searchResult) {
+            CafeDto cafeDto = CafeDto.toDto(cafe);
+            cafeDto.setIsOpen(isCafeOpen(cafe));
+            if(member != null && bookmarkRepository.findByCafeAndMember(cafe, member) != null) {
+                cafeDto.setIsBookmark(true);
+            } else {
+                cafeDto.setIsBookmark(false);
+            }
+            resultDtos.add(cafeDto);
+        }
+
+        return new PageImpl<>(resultDtos, pageable, searchResult.getTotalElements());
     }
 
     // 모든 카페 좌표들의 중심 좌표 찾기
@@ -90,24 +110,28 @@ public class CafeSearchService {
         return detailedAddr;
     }
 
-    /**
-     * List<> to Page<> 변환
-     */
-    public Page<Cafe> convertListToPage(List<Cafe> cafeList, Pageable pageable) {
-        Pageable pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-
-        int start = (int) pageRequest.getOffset();
-        int end = Math.min((start + pageRequest.getPageSize()), cafeList.size());
-
-        List<Cafe> pageContent = cafeList.subList(start, end); // 해당 페이지 번호에 해당하는 카페 목록
-        return new PageImpl<>(pageContent, pageRequest, cafeList.size()); // Page<Cafe> 타입으로 반환
+    public List<CafeDto> getPopularPlaces() {
+        List<Cafe> result = cafeRepository.findPopularPlaces();
+        return result.stream().map(cafe -> CafeDto.toDto(cafe)).toList();
     }
 
-    public CafeDto findById(Long cafeId) {
+    public CafeDto findById(Long cafeId, Long memberId) {
 
         Cafe findCafe = cafeRepository.findById(cafeId).get();
         CafeDto cafeDto = CafeDto.toDto(findCafe);
         cafeDto.setIsOpen(isCafeOpen(findCafe));
+
+        if(memberId == null) {
+            cafeDto.setIsBookmark(false);
+        } else {
+            Member findMember = memberRepository.findById(memberId).get();
+            if(bookmarkRepository.findByCafeAndMember(findCafe, findMember) != null) {
+                cafeDto.setIsBookmark(true);
+            } else {
+                cafeDto.setIsBookmark(false);
+            }
+        }
+
         return cafeDto;
      }
 
