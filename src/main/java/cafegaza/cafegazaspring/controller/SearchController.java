@@ -1,5 +1,6 @@
 package cafegaza.cafegazaspring.controller;
 
+import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.dto.CafeDto;
 import cafegaza.cafegazaspring.service.CafeSearchService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class SearchController {
@@ -18,12 +21,8 @@ public class SearchController {
     private final CafeSearchService cafeSearchService;
 
     /**
-        지도모드 클릭 시 지도 뷰 열기
+     * 카페 찾기 메인 페이지
      */
-    @GetMapping("/cafe/map")
-    public String openMapMode(Model model){
-        return "searchMap";
-    }
 
     @GetMapping("/cafe/main")
     public String openSearchMain(@SessionAttribute(name = "sessionId", required = false) Long memberId, Model model) {
@@ -35,6 +34,14 @@ public class SearchController {
     }
 
     /**
+        지도모드 열기
+     */
+    @GetMapping("/cafe/map")
+    public String openMapMode(Model model){
+        return "searchMap";
+    }
+
+    /**
      * 가게 디테일 페이지
      */
     @GetMapping("/cafe/view/{cafeId}")
@@ -42,7 +49,7 @@ public class SearchController {
         if(memberId != null) {
             model.addAttribute("member", memberId);
         }
-        CafeDto cafeDto = cafeSearchService.findById(cafeId);
+        CafeDto cafeDto = cafeSearchService.findById(cafeId, memberId);
         model.addAttribute("cafe", cafeDto);
         model.addAttribute("reviewForm", new ReviewForm());
         return "view";
@@ -51,10 +58,10 @@ public class SearchController {
     /**
         검색 요청이 오면 질의어에 맞는 카페 리스트를 찾아 데이터 반환 (rest api)
      */
-    @ResponseBody // rest api
+    @ResponseBody
     @PostMapping("/search")
-    public ResponseEntity<Page<CafeDto>> searchCafe(@RequestBody SearchQuery searchQuery, Pageable pageable) throws Exception{
-        Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, pageable); // 검색 응답 dto 반환
+    public ResponseEntity<Page<CafeDto>> searchCafe(@SessionAttribute(name = "sessionId", required = false) Long memberId, @RequestBody SearchQuery searchQuery, Pageable pageable) throws Exception{
+        Page<CafeDto> searchCafe = cafeSearchService.searchCafe(searchQuery, memberId, pageable); // 검색 응답 dto 반환
         return new ResponseEntity<>(searchCafe, HttpStatus.OK);
     }
 }
