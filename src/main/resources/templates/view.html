@@ -9,10 +9,10 @@
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <title>Cafegaza</title>
     <style>
-        #wrap {
-            min-width: 1340px;
+        #content {
+            min-height: 100vh;
+            padding-bottom: 70px;
         }
-
         .header-navbar {
             display: block;
             background: #f8f8f8;
@@ -234,37 +234,7 @@
 </head>
 <body>
 <div id="wrap">
-    <div id="header">
-        <div id="nav_area">
-            <nav class="navbar navbar-expand-lg navbar-light header-navbar" >
-                <a class="navbar-brand" href="/">카페가자</a>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/cafe/main">카페 찾기 </a>
-                        </li>
-                        <li th:if="${#strings.isEmpty(member)}" class="nav-item active">
-                            <a class="nav-link" href="/login">로그인</a>
-                        </li>
-                        <li th:unless="${#strings.isEmpty(member)}" class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#">즐겨찾기</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">로그아웃</a>
-                            </div>
-                        </li>
-
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    </div>
-
+    <div th:replace="~{fragments/header :: header}" />
     <div id="content" class="detail">
         <div id="top_info" class="d-flex justify-content-center">
             <img id="place_image" th:src="${cafe.cafeImageUrl}" style="width: 330px; height: 330px; float: left;"/>
@@ -281,7 +251,13 @@
                         </svg>
                         <span style="display: block; padding: 5px;">리뷰 쓰기</span>
                     </button>
-                    <button th:id="'bookmark_' + ${cafe.id}" th:onclick="bookMarkToggle([[${cafe.id}]])" type="button" class="btn shadow-none" style="margin: 10px;">
+                    <button th:if="${cafe.isBookmark}" th:id="'bookmark_' + ${cafe.id}" th:onclick="bookMarkToggle([[${cafe.id}]])" name="checked_bookmark" type="button" class="btn shadow-none" style="margin: 10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                        </svg>
+                        <span style="display: block; padding: 5px;">담기</span>
+                    </button>
+                    <button th:unless="${cafe.isBookmark}" th:id="'bookmark_' + ${cafe.id}" th:onclick="bookMarkToggle([[${cafe.id}]])" name="bookmark" type="button" class="btn shadow-none" style="margin: 10px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
                             <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
                         </svg>
@@ -361,7 +337,7 @@
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link active" id="nav-detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">정보</a>
-                    <a class="nav-item nav-link" id="nav-review-tab" data-toggle="tab" href="#review" th:onclick="getReview([[${cafe.id}]])" role="tab" aria-controls="review" aria-selected="false" >
+                    <a class="nav-item nav-link" id="nav-review-tab" data-toggle="tab" href="#review" th:onclick="getReview([[${cafe.id}]] , [[${member}]])" role="tab" aria-controls="review" aria-selected="false" >
                         <span>리뷰</span>
                         <span id="reviewCount" th:text="${(cafe.reviewCount)}"></span>
                     </a>
@@ -432,17 +408,17 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
                             </svg>
-                            <span style="padding: 5px;">더 보기</span>
+                            <span style="padding: 5px; margin-right: 28px;">더 보기</span>
                         </button>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="nav-review-tab">
                     <ul id="review_list" style="list-style: none; padding-left: 0; width: 760px; margin-bottom: 0px;"></ul>
-                    <button id="review-more" th:onclick="getReview([[${cafe.id}]])" class="btn" style="width: 100%; display: none;">
+                    <button id="review-more" th:onclick="getReview([[${cafe.id}]] , [[${member}]])" class="btn" style="width: 100%; display: none;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
                         </svg>
-                        <span style="padding: 5px;">더 보기</span>
+                        <span style="padding: 5px; margin-right: 28px;">더 보기</span>
                     </button>
                 </div>
                 <div class="tab-pane fade" id="picture" role="tabpanel" aria-labelledby="nav-picture-tab">
@@ -451,7 +427,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
                         </svg>
-                        <span style="padding: 5px;">더 보기</span>
+                        <span style="padding: 5px; margin-right: 28px;">더 보기</span>
                     </button>
                 </div>
 
@@ -482,11 +458,11 @@
             </div>
         </div>
     </div>
-    <div id="footer"></div>
+    <div th:replace="~{fragments/footer :: footer}" />
 </div>
+<script src="/js/bookmark.js"></script>
 <script>
 
-    var reviewPages = {};
     var reviewPageNum = 0;
     var reviewList = {};
     var uploadImageFiles = {};
@@ -494,30 +470,11 @@
     var imagePages = {};
     var imagePageNum = 0;
 
-    // var backToTop = () => {
-    //     // Scroll | button show/hide
-    //     window.addEventListener('scroll', () => {
-    //         if (document.querySelector('html').scrollTop > 100) {
-    //             document.getElementById('go-top').style.display = "block";
-    //         } else {
-    //             document.getElementById('go-top').style.display = "none";
-    //         }
-    //     });
-    //     // back to top
-    //     document.getElementById('go-top').addEventListener('click', () => {
-    //         window.scrollTo({
-    //             top: 0,
-    //             left: 0,
-    //             behavior: 'smooth'
-    //         });
-    //     })
-    // };
-    // backToTop();
-
+    // 메뉴 아이템 더보기 기능
     $(function(){
         var count = $(".menu_item").length;
         $(".menu_item").slice(0, (count > 8 ? 8 : count)).show(); // 초기 보여줄 갯수
-        $("#menu-more").click(function(e){ // 클릭시 more
+        $("#menu-more").click(function(e){ // 클릭시 더보기
             e.preventDefault();
             $(".menu_item:hidden").slice(0, ($(".menu_item:hidden").length > 8 ? 8 : $(".menu_item:hidden").length)).show();
             if ($(".menu_item:hidden").length == 0) {
@@ -527,17 +484,15 @@
     });
 
     function openReviewModal(memberId) {
-        // if(memberId == null) {
-        //     $('#loginModal').modal("show");
-        // } else {
-        //     $('#reviewModal').modal("show");
-        // }
-
-        $('#reviewModal').modal("show");
-
+        if(memberId == null) {
+            $('#loginModal').modal("show");
+        } else {
+            $('#reviewModal').modal("show");
+        }
 
     }
 
+    // 리뷰 작성 시 별점 기능
     const allStar = document.querySelectorAll('.rating .star')
     const ratingValue = document.querySelector('.rating input')
 
@@ -562,8 +517,9 @@
         })
     })
 
+    // 리뷰 초기화
     function resetReview() {
-        // const allStar = document.querySelectorAll('.rating .star')
+
         allStar.forEach(i=> {
             i.classList.replace('bxs-star', 'bx-star')
             i.classList.remove('active')
@@ -580,12 +536,14 @@
         $("#imageInputBtn").show();
     }
 
+    // 사진 업로드 버튼 클릭 시 input 클릭
     function onClickUpload(){
         let imageInput = document.getElementById("image-input");
         imageInput.click();
     }
 
-    // 사용자가 이미지를 등록할 때 서버 요청
+    // 사용자가 단일 이미지 파일을 등록할 때 서버에 등록 요청
+    // multipartFile 형태로 보내어 FileDto 객체로 받음
     function postFile(imageInput) {
         var formData = new FormData();
         formData.append('file', imageInput.files[0]);
@@ -613,6 +571,7 @@
 
     }
 
+    // 사진 등록 시 미리보기 보여주기
     function setPreview(file) {
 
         var itemEl = document.createElement('li');
@@ -641,6 +600,7 @@
         }
     }
 
+    // 미리보기로 등록된 사진을 삭제 시 파일 삭제
     function deleteFile(e) {
         var number = e.target.id.substr(-1); // 사진 번호
         var itemEl = document.getElementById('preview' + number);
@@ -652,75 +612,18 @@
         }
     }
 
-    // 북마크 버튼을 눌렀을 때
-    function bookMarkToggle(cafeId) {
-        var bookMarkEl = document.getElementById('bookmark_' + cafeId);
-
-        if(bookMarkEl.getAttribute('name') == 'checked_bookmark') {
-            deleteBookmark(cafeId, bookMarkEl);
-        } else {
-            addBookMark(cafeId, bookMarkEl);
-        }
-    }
-
-    function deleteBookmark(cafeId, bookMarkEl) {
-
-        $.ajax({
-
-            url: '/bookmark/'+ cafeId + '/delete',
-            type: 'post',
-            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
-            dataType: 'json', // 요청 시 응답 결과 타입
-            contentType: "application/json; charset=utf-8",
-            success : function() {
-                // 북마크 제거도 필요
-                bookMarkEl.name = "bookmark";
-                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
-                    '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
-                    '</svg>'
-            },
-            error:function(request){
-                // 권한 없음 에러일 경우 모달창 보여주기
-                $('#loginModal').modal("show");
-                console.log("code:"+request.status);
-            }
-        });
-
-    }
-
-    // 북마크 추가 요청
-    function addBookMark(cafeId, bookMarkEl) {
-        $.ajax({
-
-            url: '/bookmark/'+ cafeId,
-            type: 'post',
-            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
-            dataType: 'json', // 요청 시 응답 결과 타입
-            contentType: "application/json; charset=utf-8",
-            success : function() {
-                // 성공적으로 북마크 추가되면 하트를 눌러진 상태로 변경
-                bookMarkEl.name = "checked_bookmark";
-                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">' +
-                    '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>' + '</svg>'
-            },
-            error:function(request){
-                // 권한 없음 에러일 경우 모달창 보여주기
-                $('#loginModal').modal("show");
-                console.log("code:"+request.status);
-            }
-        });
-    }
-
+    // 리뷰 등록
     function postReview(cafeId) {
         // 리뷰 업데이트
         if($('#reviewModal').attr('name') !== undefined) {
             var reviewId = $('#reviewModal').attr('name');
             updateReview(cafeId, reviewId);
-        } else {
+        } else { // 새 리뷰 등록
             createNewReview(cafeId);
         }
     }
 
+    // 서버에 리뷰 업데이트을 위한 post 요청
     function updateReview(cafeId, reviewId) {
 
         var rate = Number(ratingValue.value); // 별점
@@ -763,6 +666,7 @@
 
     }
 
+    // 서버에 새로운 리뷰 등록을 위한 post 요청
     function createNewReview(cafeId) {
         var rate = Number(ratingValue.value); // 별점
         var reviewOpinion = document.getElementById('review_opinion').value; // 리뷰 작성 내용
@@ -803,7 +707,31 @@
 
     }
 
-    function getReview(cafeId) {
+    // 서버에 리뷰 삭제 요청
+    function deleteReview() {
+
+        var reviewId = $('#confirmationModal').attr('name');
+
+        $.ajax({
+
+            url: '/review/' + reviewId + '/delete',
+            type: 'get',
+            success: function (data) {
+                alert('리뷰를 삭제하였습니다.');
+                $('#confirmationModal').removeAttr('name');
+                $('#confirmationModal').modal('hide');
+                $('#' + reviewId).remove(); // 삭제된 리뷰 노드 제거
+                var before = $('#reviewCount').text();
+                $('#reviewCount').text(Number(before)-1);
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
+    }
+
+    // 8개씩 페이지별 리뷰 가져오기
+    function getReview(cafeId, memberId) {
 
         // if(reviewPageNum in reviewPages) {
         //     return;
@@ -829,7 +757,7 @@
                         reviewList[contents[i].reviewId] = contents[i];
                     }
                     // reviewPages[reviewPageNum] = data['content'];
-                    displayReviews(data['content'], data['totalPages']);
+                    displayReviews(data['content'], data['totalPages'], memberId);
                     if(data['totalPages'] > reviewPageNum+1) {
                         $('#review-more').show();
                     } else {
@@ -846,12 +774,13 @@
         });
     }
 
-    function displayReviews(reviews, totalPages) {
+    // 리뷰 목록 보여주기
+    function displayReviews(reviews, totalPages, memberId) {
         var reviewList = document.getElementById('review_list'),
             fragment = document.createDocumentFragment();
 
         for(var i=0; i<reviews.length; i++) {
-            var itemEl = getReviewItem(reviews[i]);
+            var itemEl = getReviewItem(reviews[i], memberId);
             fragment.appendChild(itemEl);
         }
 
@@ -859,7 +788,8 @@
 
     }
 
-    function getReviewItem(review) {
+    // 리뷰 목록에 들어갈 한 개의 리뷰 아이템 생성
+    function getReviewItem(review, memberId) {
 
         var item = document.createElement('li'),
             innerStr = '';
@@ -882,15 +812,20 @@
         rateInfoEl.innerHTML = starEl;
         reviewInfoEl.appendChild(rateInfoEl);
 
-        var btnGroupEl = document.createElement('div');
-        var innerBtn = '<button class="btn" onclick="openUpdateReviewModal(this)">수정</button>\n' + '<button class="btn" onclick="openConfirmationModal(this)">삭제</button>'
-        btnGroupEl.innerHTML = innerBtn;
-        btnGroupEl.className = "reviewEditButton";
-        btnGroupEl.style.float = "right";
-
         item.appendChild(writerInfoEl);
         item.appendChild(reviewInfoEl);
-        item.appendChild(btnGroupEl);
+
+        // 리뷰 작성자와 현재 로그인된 사용자의 아이디가 같다면 수정, 삭제 버튼 생성
+        console.log('review member', review.member.id);
+        console.log('member state', memberId);
+        if(review.member.id == memberId) {
+            var btnGroupEl = document.createElement('div');
+            var innerBtn = '<button class="btn" onclick="openUpdateReviewModal(this)">수정</button>\n' + '<button class="btn" onclick="openConfirmationModal(this)">삭제</button>'
+            btnGroupEl.innerHTML = innerBtn;
+            btnGroupEl.className = "reviewEditButton";
+            btnGroupEl.style.float = "right";
+            item.appendChild(btnGroupEl);
+        }
 
         if(review.images.length > 0){
             var photoInfoEl = document.createElement('div');
@@ -914,6 +849,7 @@
         return item;
     }
 
+    // 리뷰 별점에 따른 아이콘 보여주기
     function getStarEl(rate) {
         var starEl = '';
         for(var i=0; i<rate; i++) {
@@ -934,6 +870,7 @@
         return starEl;
     }
 
+    // 리뷰 사진 목록 생성
     function getPhotoList(imageList) {
         var photoListEl = document.createElement('ul');
         photoListEl.className = "photo_list";
@@ -959,6 +896,7 @@
         return photoItem;
     }
 
+    // 리뷰 삭제 시 재확인 모달창 생성
     function openConfirmationModal(target) {
         // 확인 모달창 띄우기
         var reviewId = target.parentNode.parentNode.id;
@@ -966,28 +904,8 @@
         $('#confirmationModal').modal('show');
     }
 
-    function deleteReview() {
 
-        var reviewId = $('#confirmationModal').attr('name');
-
-        $.ajax({
-
-            url: '/review/' + reviewId + '/delete',
-            type: 'get',
-            success: function (data) {
-                alert('리뷰를 삭제하였습니다.');
-                $('#confirmationModal').removeAttr('name');
-                $('#confirmationModal').modal('hide');
-                $('#' + reviewId).remove(); // 삭제된 리뷰 노드 제거
-                var before = $('#reviewCount').text();
-                $('#reviewCount').text(Number(before)-1);
-            },
-            error: function (request, status, error) {
-                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
-            }
-        });
-    }
-
+    // 리뷰 업데이트창 가져오기
     function openUpdateReviewModal(target) {
         var reviewId = target.parentNode.parentNode.id;
         $('#reviewModal').attr('name', reviewId);
@@ -995,44 +913,17 @@
         getBeforeReview(reviewId);
     }
 
+    // 리뷰 업데이트 시 이전 리뷰 내용 가져오기
     function getBeforeReview(reviewId) {
 
         // 이전에 작성되었던 리뷰 내용
         var review = reviewList[reviewId];
-        // var rate = $('#' + reviewId + ' .rate_info').attr('aria-label');
-        // var content =  $('#' + reviewId + ' .review_content p').html();
         var rate = review.rate;
         var content = review.content;
         var images = review.images;
 
         allStar[Number(rate)-1].click(); // 별점 누르기
         $('#reviewModal #review_opinion').val(content.trim());
-
-        // var photoList = $('#' + reviewId + ' .photo_item img');
-        // for (var i=0; i<photoList.length; i++) {
-        //     var itemEl = document.createElement('li');
-        //     itemEl.id = 'preview' + imageIndex;
-        //     itemEl.style.display = "inline-block";
-        //
-        //     var img = document.createElement("img");
-        //     img.src = photoList[i].getAttribute('src');
-        //     img.style.cssText = "width: 100px; height: 100px; margin-right: 10px;";
-        //     img.id = "uploadFile" + imageIndex;
-        //
-        //     var deleteBtn = document.createElement('button');
-        //     deleteBtn.addEventListener("click", deleteFile);
-        //     deleteBtn.innerHTML = 'x';
-        //     deleteBtn.type = "button";
-        //     deleteBtn.className = "review-delete-btn";
-        //     deleteBtn.id = 'imageDelete' + imageIndex;
-        //
-        //     itemEl.appendChild(img);
-        //     itemEl.appendChild(deleteBtn);
-        //     document.querySelector("#previewList").appendChild(itemEl);
-        //
-        //     uploadImageFiles[imageIndex] = img.src;
-        //     imageIndex++;
-        // }
 
         for (var i=0; i<images.length; i++) {
             var itemEl = document.createElement('li');
@@ -1065,6 +956,7 @@
 
     }
 
+    // 사진을 tab 하였을 때 카페 사진 목록 가져오기
     function getImageList(cafeId) {
 
         if(imagePageNum in imagePages) {

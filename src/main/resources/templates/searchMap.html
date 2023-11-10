@@ -27,7 +27,7 @@
             top: 0;
             left: 56px;
             bottom: 0;
-            width: 320px;
+            width: 340px;
             margin: 20px 0;
             overflow: hidden;
             box-sizing: border-box;
@@ -42,7 +42,7 @@
             z-index: 9998;
             top: 16px;
             left: 53px;
-            width: 320px;
+            width: 340px;
             /* padding: 5px 0; */
         }
         .menu-btn {
@@ -57,20 +57,20 @@
             align-items: center;
             width: 50px;
         }
-        #places_box {
+        #places_wrap {
             z-index: 9998;
             top: 90px;
             left: 53px;
             bottom: 0;
-            width: 320px;
-            height: 908px;
-            margin: 10px 0;
+            width: 340px;
+            height: 85%;
+            margin: 4px 0;
             overflow-y: auto;
             box-sizing: border-box;
             -ms-overflow-style: none;
             /* padding: 5px 0; */
         }
-        #places_box hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
+        #places_wrap hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
         #search_box #search_area {
             text-align: center;
             position: relative;
@@ -81,7 +81,7 @@
         }
         /*#search_box .option p {margin:10px 0;}*/
         /*#search_box .option button {margin-left:5px;}*/
-        #places_box #placesList {
+        #places_wrap #placesList {
             padding-left: 0;
             overflow-y: auto;
             box-sizing: border-box;
@@ -89,7 +89,7 @@
             /*padding-bottom: 80px;*/
             /*margin-top: 10px;*/
         }
-        #places_box::-webkit-scrollbar {
+        #places_wrap::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Opera*/
         }
         .list_overlay {
@@ -114,11 +114,11 @@
         }
         #placesList .item span {display: block;margin-top:4px;}
         #placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;/*white-space: nowrap;*/}
-        #placesList .item .info{padding:10px 0 10px 55px;}
+        #placesList .item .info{width: 196px; padding:10px 0 5px 10px;}
         #placesList .info .gray {color:#8a8a8a;}
         #placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
         #placesList .info .tel {color:#009900;}
-        #placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+        #placesList .item .imagebg {float:left;width:80px; height:90px;margin:10px 0 0 10px;}
         #placesList .item .marker_1 {background-position: 0 -10px;}
         #placesList .item .marker_2 {background-position: 0 -56px;}
         #placesList .item .marker_3 {background-position: 0 -102px}
@@ -238,7 +238,7 @@
             color: black;
         }
 
-        .openHourOption_btn:hover, .active {
+        .openHourOption_btn:hover, .option_active {
             color: white;
             background-color: #0755eb;
         }
@@ -284,6 +284,7 @@
             border: 2px double #6c757d;
             background-color: white;
             box-sizing: border-box;
+            margin-left: 10px;
         }
 
     </style>
@@ -375,15 +376,37 @@
             </form>
         </div>
 
-        <div id="sort_option" style="display: none;">
-            <button id="option_1" onclick="setSortOption(this)" type="button" class="btn sort_btn" style="background-color: #0755eb; color: white;" >별점 순</button>
-            <button id="option_2" onclick="setSortOption(this)" type="button" class="btn sort_btn " >리뷰 순</button>
-        </div>
-
-        <div id="places_box">
-            <!--        <hr>-->
+        <div id="places_wrap" style="display: none;">
+            <div id="sort_option">
+                <button id="option_1" onclick="setSortOption(this)" type="button" class="btn sort_btn" style="background-color: #0755eb; color: white;" >별점 순</button>
+                <button id="option_2" onclick="setSortOption(this)" type="button" class="btn sort_btn " >리뷰 순</button>
+            </div>
             <ul id="placesList"></ul>
             <div id="pagination"></div>
+
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true" style="top: 150px; margin: 0 36%;">
+        <div class="modal-dialog" role="document" style="top: 150px; display: flex; justify-content: center;">
+            <div class="modal-content" style="width: 350px; height: 150px; border-radius: 30px;">
+                <div class="modal-header" style="border-bottom: none;">
+                    <h5 class="modal-title" id="loginModeLabel" style="margin-left: 138px; font-size: 15px; padding: 5px 20px;">알림</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin: -7px 4px;">
+                        <span aria-hidden="true" style="font-size: 20px;">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="font-size: 15px; padding: 15px 2rem 8px; text-align: center;">
+                    로그인이 필요합니다.
+                </div>
+                <div class="modal-footer" style="margin-top: 11px; padding: 0px; height: 40px;">
+                    <div class="btn-group" role="group" aria-label="modal_btn_group" style="width: 100%;">
+                        <button type="button" class="btn shadow_none" data-dismiss="modal" style="border-right: 1px solid #dee2e6; width: 100%">확인</button>
+                        <button type="button" class="btn shadow-none" style="width: 100%;">로그인하기</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -391,6 +414,11 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
 <script src="/js/bootstrap.js"></script>
 <script src="/js/slider.js"></script>
+<script src="/js/bookmark.js"></script>
+<script src="/js/search.js"></script>
+<script src="/js/place.js"></script>
+<script src="/js/pagination.js"></script>
+<script src="/js/option.js"></script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=7ca06ae2e205d6d0f938bf2a3b7fd504&libraries=services"></script>
 <script>
 
@@ -436,168 +464,31 @@
 
         currentOpen = Number(sessionStorage.getItem('currentOpen'));
         if(currentOpen == 1) {
-            document.getElementById('currentOpen_btn').classList.add('active');
+            document.getElementById('currentOpen_btn').classList.add('option_active');
         }
 
         dawnOpen = Number(sessionStorage.getItem('dawnOpen'));
         if(dawnOpen == 1) {
-            document.getElementById('dawnOpen_btn').classList.add('active');
+            document.getElementById('dawnOpen_btn').classList.add('option_active');
         }
 
         searchPlaces();
         sessionStorage.clear();
     }
 
-    function toggleActive(num) {
-        var status;
-        let target;
-        if (num == 1) {
-            target = document.getElementById('currentOpen_btn');
-            status = currentOpen;
-            currentOpen = (currentOpen == 0) ? 1 : 0
-        } else if(num == 2){
-            target = document.getElementById('dawnOpen_btn');
-            status = dawnOpen;
-            dawnOpen = (dawnOpen == 0) ? 1 : 0
-        }
-
-        if (status) {
-            target.classList.remove('active');
-        } else {
-            target.classList.add('active');
-        }
-    }
-
-    function setSortOption(option) {
-        var optionGroup = document.getElementById('sort_option').children;
-        var index = option.id.split('_')[1];
-
-        if(sortType == index) {
-            return;
-        }
-
-        sortType = index;
-        searchPlaces();
-
-        for (var i=0; i < optionGroup.length; i++) {
-            if (optionGroup[i].id.split('_')[1] != index) {
-                optionGroup[i].removeAttribute('style');
-                // } else {
-                option.style.backgroundColor = "#0755eb";
-                option.style.color = "white";
-            }
-        }
-    }
-
-    // 모든 옵션 설정을 초기화하기
-    function optionReset() {
-        // 메뉴 검색 옵션 설정 제거
-        menuOption = '';
-        setMenuOption('메뉴 전체');
-        // 영업 시간 옵션 설정 제거
-        removeOpenHourOption();
-        // 영업 중, 새벽 운영 옵션 설정 제거
-        if(currentOpen == 1){
-            document.getElementById('currentOpen_btn').classList.remove('active');
-            currentOpen = 0;
-        }
-        if(dawnOpen == 1){
-            document.getElementById('dawnOpen_btn').classList.remove('active');
-            dawnOpen = 0;
-        }
-    }
-
-    function setMenuOption(menuItem) {
-
-        var menuOptEl = document.getElementById("menuOption_btn");
-        if (menuItem == '메뉴 전체'){
-            menuOptEl.innerHTML = ' 메뉴 종류 ';
-            menuOptEl.classList.remove('selected');
-        } else {
-            menuOptEl.innerHTML = ' ' + menuItem + ' ';
-            menuOptEl.classList.add('selected');
-        }
-    }
-
+    // 옵션 더보기를 클릭하였을 때 카페 목록 세로길이 변화 주기
     function changeHeight() {
         viewMore = !viewMore
-        let element = document.getElementById('places_box');
-        element.style.height = (viewMore) ? '700px' : '908px';
-    }
-    // 새 키워드로 검색을 요청하는 함수입니다
-    function searchPlaces() {
-
-        keyword = document.getElementById('keyword').value;
-        menuOption = document.getElementById('menuOption_btn').innerHTML.trim(); // 값이 없으면 빈문자열 상태
-        if (menuOption == '메뉴 종류') {
-            menuOption = '';
-        }
-        // 영업 시간 옵션을 지정했다면
-        if (isSetOpenHour){
-            startHour = document.getElementById('openHour-left').value; // 영업 시작 시간
-            endHour = document.getElementById('openHour-right').value; // 영업 종료 시간
-        }
-
-        if (!keyword.replace(/^\s+|\s+$/g, '')) {
-            alert('키워드를 입력해주세요!');
-            return false;
-        }
-        // api 는 0페이지가 첫페이지
-        places = {}; // 딕셔너리 초기화
-        searchApi(0);
+        let element = document.getElementById('places_wrap');
+        element.style.height = (viewMore) ? '62%' : '85%';
     }
 
-    // api 호출하여 현재 페이지에 해당하는 카페 데이터 요청
-    function searchApi(pageNum) {
-
-        $.ajax({
-
-            url: '/search?page=' + pageNum + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
-            data: JSON.stringify({ // 질의어
-                'keyword' : keyword,
-                'menuOption' : menuOption,
-                'startHour' : startHour,
-                'endHour' : endHour,
-                'currentOpen': currentOpen,
-                'dawnOpen' : dawnOpen,
-                'sortType' : sortType
-            }),
-            type: 'post',
-            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
-            dataType: 'json', // 요청 시 응답 결과 타입
-            contentType: "application/json; charset=utf-8",
-            success : function(data) {
-
-                if (data['totalElements'] == 0) { // 검색 결과가 0건이면
-                    alert('검색 결과가 존재하지 않습니다.');
-                    return;
-
-                } else{
-
-                    places[pageNum+1] = data['content']; // 검색된 카페
-                    // 검색된 카페가 있을 때
-                    // 현재 페이지 검색 결과 출력
-                    // 검색 목록과 마커를 표출합니다
-                    displayPlaces(pageNum+1);
-                    // 페이지 번호를 표출합니다
-                    displayPagination(pageNum+1, data['totalPages']);
-                }
-
-                console.log(data);
-            },
-            error:function(request,status,error){
-                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-            }
-
-        });
-
-    }
 
     // 검색 결과 목록과 마커를 표출하는 함수입니다
     function displayPlaces(page) {
 
         var listEl = document.getElementById('placesList'),
-            menuEl = document.getElementById('places_box'),
+            menuEl = document.getElementById('places_wrap'),
             fragment = document.createDocumentFragment(),
             bounds = new kakao.maps.LatLngBounds();
 
@@ -647,31 +538,7 @@
 
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
         map.setBounds(bounds);
-        $("#sort_option").show();
-    }
-
-    // 검색결과 항목을 Element로 반환하는 함수입니다
-    function getListItem(index, place) {
-
-        var el = document.createElement('li'),
-            itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
-                '<div class="info">' +
-                '   <h5>' + place.name + '</h5>';
-
-        if (place.roadAddress) {
-            itemStr += '    <span>' + place.roadAddress + '</span>' +
-                '   <span class="jibun gray">' +  place.address  + '</span>';
-        } else {
-            itemStr += '    <span>' +  place.address  + '</span>';
-        }
-
-        itemStr += '  <span class="tel">' + place.telephone  + '</span>' +
-            '</div>';
-
-        el.innerHTML = itemStr;
-        el.className = 'item list_overlay';
-
-        return el;
+        $("#places_wrap").show();
     }
 
     // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
@@ -684,77 +551,6 @@
         markers.push(marker);  // 배열에 생성된 마커를 추가합니다
 
         return marker;
-    }
-    // 데이터를 한 번에 가져와서 페이지별로 화면 출력 구현
-    // 검색결과 목록 하단에 페이지번호를 표시는 함수입니다
-    function displayPagination(page, totalPages) {
-        var paginationEl = document.getElementById('pagination'),
-            fragment = document.createDocumentFragment();
-
-        // 기존에 추가된 페이지번호를 삭제합니다
-        while (paginationEl.hasChildNodes()) {
-            paginationEl.removeChild (paginationEl.lastChild);
-        }
-
-        let limitPerPage = 15; // 한 페이지에 15개씩 카페 출력
-        let showPage = 5; // 화면에 보일 페이지 번호 개수
-        let totalPage = totalPages; // 전체 페이지 수
-        if(totalPage > 34) {
-            totalPage = 34; // 전체 페이지는 34까지 제한 -> 최대 15x34 = 510 개의 카페 목록 제공
-        }
-
-        let pageGroupNum = Math.ceil(page / showPage); // 현재 페이지 그룹
-        let lastPage = pageGroupNum * showPage; // 화면에 보여주는 마지막 페이지의 번호
-        if (lastPage > totalPage) {
-            lastPage = totalPage;
-        }
-        let firstPage = (pageGroupNum - 1) * showPage + 1
-
-        let prev = firstPage - 1;
-        let next = lastPage + 1;
-
-        if (prev != 0) { // 이전 페이지가 있으면
-            var el = document.createElement('a');
-            el.href = "#";
-            el.innerHTML = '<';
-            el.onclick = goto(prev, totalPages);
-            fragment.appendChild(el);
-        }
-
-        for (let i=firstPage; i<=lastPage; i++) { // 페이지 번호 생성
-            var el = document.createElement('a');
-            el.href = "#";
-            el.innerHTML = i;
-
-            if (i===page){
-                el.className = 'on';
-            } else {
-                el.onclick = goto(i, totalPages);
-            }
-            fragment.appendChild(el);
-        }
-
-        if (next <= totalPage) { // 다음 페이지가 있으면
-            var el = document.createElement('a');
-            el.href = "#";
-            el.innerHTML = '>';
-            el.onclick = goto(next, totalPages);
-            fragment.appendChild(el);
-        }
-
-        paginationEl.appendChild(fragment);
-    }
-
-    // 페이지 번호 클릭 시 해당 페이지 목록으로 이동시키는 함수
-    function goto(nextPage, totalPages) {
-        return function() {
-            if(nextPage in places) { // 이미 조회했던 페이지라면
-                displayPlaces(nextPage);
-                displayPagination(nextPage, totalPages);
-            } else{
-                searchApi(nextPage-1); // api는 0페이지부터 검색하므로 -1하여 호출
-            }
-        }
     }
 
     // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
@@ -781,6 +577,7 @@
         }
     }
 
+    // 카페 찾기 기본모드로 돌아가기
     function goToSearchMain() {
 
         if($("#placesList").children().length > 0) {

@@ -65,9 +65,6 @@ function removeOpenHourOption() {
     }
 }
 
-function openHourReset() {
-
-}
 function getTime(value) {
     if (value < 12) {
         return '오전 ' + value + '시';
