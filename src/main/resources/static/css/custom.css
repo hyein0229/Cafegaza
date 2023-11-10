@@ -17,18 +17,50 @@
       height: 100%;
  }
 
+html, body {
+    height: 100%
+}
+
 #wrap {
     min-width: 1340px;
-    height: 100%;
+    min-height: 100%;
+    padding-bottom: 70px;
 }
 
 body {
     background-color: var(--light);
 }
 
+#container {
+    min-height: 100vh;
+    padding-bottom: 70px;
+}
+
 a, a:hover {
     color: black;
     text-decoration: none;
+}
+
+.header-navbar {
+    display: block;
+    background: #f8f8f8;
+    box-shadow: 1px 1px 40px 15px #dadce0;
+}
+
+.footer {
+    position: relative;
+    bottom: 0px;
+    /*margin-top: 5rem;*/
+    min-height: 70px;
+    text-align: center;
+    padding: 15px 0;
+    background-color: #e2e2e2;
+    font-size: 12px;
+    color: #746c6c;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 input:-webkit-autofill,

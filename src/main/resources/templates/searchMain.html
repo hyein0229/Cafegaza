@@ -8,9 +8,6 @@
     <link rel="stylesheet" href="/css/custom.css">
     <title>Cafegaza</title>
     <style>
-        #wrap {
-            min-width: 1340px;
-        }
         #search_area {
             margin-top: 100px;
         }
@@ -144,7 +141,7 @@
             color: black;
         }
 
-        .openHourOption_btn:hover, .btn_active {
+        .openHourOption_btn:hover, .option_active {
             color: white;
             background-color: #0755eb;
         }
@@ -159,6 +156,19 @@
             margin-top: 40px;
             padding-bottom: 10px;
             box-sizing: border-box;
+        }
+        #info-main {
+            float: left;
+            top: 40px;
+            width: 70%;
+            width: 700px;
+            min-height: 720px;
+            margin-top: 40px;
+            padding-bottom: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            padding: 2rem 50px;
+
         }
         #rightSide_wrap {
             float: left;
@@ -198,7 +208,7 @@
         #placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;/*white-space: nowrap;*/}
         #placesList .item .info{
             padding:10px 0 10px 25px;
-            width: 70%;
+            width: 69%;
             height: 155px;
         }
         #placesList .info .gray {color:#8a8a8a;}
@@ -258,54 +268,27 @@
 </head>
 <body>
 <div id="wrap">
-    <div id="header">
-        <div id="nav_area">
-            <nav class="navbar navbar-expand-lg navbar-light header-navbar" >
-                <a class="navbar-brand" href="/">카페가자</a>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/cafe/main">카페 찾기 </a>
-                        </li>
-                        <li th:if="${#strings.isEmpty(member)}" class="nav-item active">
-                            <a class="nav-link" href="/login">로그인</a>
-                        </li>
-                        <li th:unless="${#strings.isEmpty(member)}" class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#">즐겨찾기</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">로그아웃</a>
-                            </div>
-                        </li>
+    <div th:replace="~{fragments/header :: header}" />
+    <div id="container">
 
-                    </ul>
-                </div>
-            </nav>
-            <div id="search_area">
-                <div class="d-flex justify-content-center">
-                    <div class="d-flex flex-column bd-highlight mb-3">
-                        <form onsubmit="searchPlaces(); return false;" id="search-form">
-                            <div class="container search_input">
-                                <input id="keyword" type="text" class="form-control shadow-none" style="width: 680px; border: none;" placeholder="지역, 카페명.." aria-label="search">
-                                <button id="search_btn" type="submit" class="btn search_btn shadow-none" style="position: absolute; margin-left: 680px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+        <div id="search_area">
+            <div class="d-flex justify-content-center" style="padding-right: 21px;">
+                <div class="d-flex flex-column bd-highlight mb-3">
+                    <form onsubmit="searchPlaces(); return false;" id="search-form">
+                        <div class="container search_input">
+                            <input id="keyword" type="text" class="form-control shadow-none" style="width: 680px; border: none;" placeholder="지역, 카페명.." aria-label="search">
+                            <button id="search_btn" type="submit" class="btn search_btn shadow-none" style="position: absolute; margin-left: 680px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-    <div id="container">
-        <div class="d-flex justify-content-center" style="padding-right: 100px;">
+
+        <div class="d-flex justify-content-center" style="padding-right: 220px;">
 
             <div id="option_side_wrap">
                 <div id="option_group">
@@ -357,8 +340,14 @@
                 </div>
             </div>
 
-            <div id="places_wrap">
-                <div id="sort_option" style="margin-bottom: 10px; display: none;">
+            <div id="info-body">
+                <div id="info-main">
+                    <span>카페를 검색하세요</span>
+                </div>
+            </div>
+
+            <div id="places_wrap" style="display: none;">
+                <div id="sort_option" style="margin-bottom: 10px;">
                     <button id="option_1" onclick="setSortOption(this)" type="button" class="btn sort_btn" style="background-color: #0755eb; color: white;" >별점 순</button>
                     <button id="option_2" onclick="setSortOption(this)" type="button" class="btn sort_btn " >리뷰 순</button>
                 </div>
@@ -373,7 +362,7 @@
                     </svg>
                     <span style="display: block; color: white">지도모드</span>
                 </button>
-                <button id="go-top">
+                <button id="go-top" style="display: none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-arrow-up-circle-fill" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z" />
                     </svg>
@@ -404,18 +393,22 @@
             </div>
         </div>
     </div>
-    <div id="footer"></div>
+    <div th:replace="~{fragments/footer :: footer}" />
 </div>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
 <script src="/js/bootstrap.js"></script>
 <script src="/js/slider.js"></script>
+<script src="/js/bookmark.js"></script>
+<script src="/js/search.js"></script>
+<script src="/js/place.js"></script>
+<script src="/js/pagination.js"></script>
+<script src="/js/option.js"></script>
 <script>
 
     var places = {}; // key: 페이지 번호 value: 해당 페이지 카페 목록
     var keyword;
     var menuOption = '';
-    let viewMore = false;
     let isSetOpenHour = 0;
     let startHour = 0
     let endHour = 0;
@@ -449,12 +442,12 @@
 
         currentOpen = Number(sessionStorage.getItem('currentOpen'));
         if(currentOpen == 1) {
-            document.getElementById('currentOpen_btn').classList.add('btn_active');
+            document.getElementById('currentOpen_btn').classList.add('option_active');
         }
 
         dawnOpen = Number(sessionStorage.getItem('dawnOpen'));
         if(dawnOpen == 1) {
-            document.getElementById('dawnOpen_btn').classList.add('btn_active');
+            document.getElementById('dawnOpen_btn').classList.add('option_active');
         }
 
         searchPlaces();
@@ -479,157 +472,10 @@
             });
         })
     };
-    backToTop();
-
-    function setSortOption(option) {
-        var optionGroup = document.getElementById('sort_option').children;
-        var index = option.id.split('_')[1];
-
-        if(sortType == index) {
-            return;
-        }
-
-        sortType = index;
-        searchPlaces();
-
-        for (var i=0; i < optionGroup.length; i++) {
-            if (optionGroup[i].id.split('_')[1] != index) {
-                optionGroup[i].removeAttribute('style');
-            // } else {
-                option.style.backgroundColor = "#0755eb";
-                option.style.color = "white";
-            }
-        }
-    }
-
-    function toggleActive(num) {
-        var status;
-        let target;
-        if (num == 1) {
-            target = document.getElementById('currentOpen_btn');
-            status = currentOpen;
-            currentOpen = (currentOpen == 0) ? 1 : 0
-        } else if(num == 2){
-            target = document.getElementById('dawnOpen_btn');
-            status = dawnOpen;
-            dawnOpen = (dawnOpen == 0) ? 1 : 0
-        }
-
-        if (status) {
-            target.classList.remove('btn_active');
-        } else {
-            target.classList.add('btn_active');
-        }
-    }
-
-    // 모든 옵션 설정을 초기화하기
-    function optionReset() {
-        // 메뉴 검색 옵션 설정 제거
-        menuOption = '';
-        document.getElementById("menuOption_btn").innerHTML = ' 메뉴 종류 ';
-        // 영업 시간 옵션 설정 제거
-        removeOpenHourOption();
-        // 영업 중, 새벽 운영 옵션 설정 제거
-        if(currentOpen == 1){
-            document.getElementById('currentOpen_btn').classList.remove('btn_active');
-            currentOpen = 0;
-        }
-        if(dawnOpen == 1){
-            document.getElementById('dawnOpen_btn').classList.remove('btn_active');
-            dawnOpen = 0;
-        }
-    }
-
-    function setMenuOption(menuItem) {
-
-        var menuOptEl = document.getElementById("menuOption_btn");
-        if (menuItem == '메뉴 전체'){
-            menuOptEl.innerHTML = ' 메뉴 종류 ';
-            menuOptEl.classList.remove('selected');
-        } else {
-            menuOptEl.innerHTML = ' ' + menuItem + ' ';
-            menuOptEl.classList.add('selected');
-        }
-    }
-
-    function changeHeight() {
-        viewMore = !viewMore
-        let element = document.getElementById('places_box');
-        element.style.height = (viewMore) ? '700px' : '930px';
-    }
-    // 새 키워드로 검색을 요청하는 함수입니다
-    function searchPlaces() {
-
-        keyword = document.getElementById('keyword').value;
-        menuOption = document.getElementById('menuOption_btn').innerHTML.trim(); // 값이 없으면 빈문자열 상태
-        if (menuOption == '메뉴 종류') {
-            menuOption = '';
-        }
-        // 영업 시간 옵션을 지정했다면
-        if (isSetOpenHour){
-            startHour = document.getElementById('openHour-left').value; // 영업 시작 시간
-            endHour = document.getElementById('openHour-right').value; // 영업 종료 시간
-        }
-
-        if (!keyword.replace(/^\s+|\s+$/g, '')) {
-            alert('키워드를 입력해주세요!');
-            return false;
-        }
-        // api 는 0페이지가 첫페이지
-        places = {}; // 딕셔너리 초기화
-        searchApi(0);
-    }
-
-    // api 호출하여 현재 페이지에 해당하는 카페 데이터 요청
-    function searchApi(pageNum) {
-
-        $.ajax({
-
-            url: '/search?page=' + pageNum + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
-            data: JSON.stringify({ // 질의어
-                'keyword' : keyword,
-                'menuOption' : menuOption,
-                'startHour' : startHour,
-                'endHour' : endHour,
-                'currentOpen': currentOpen,
-                'dawnOpen' : dawnOpen,
-                'sortType' : sortType
-            }),
-            type: 'post',
-            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
-            dataType: 'json', // 요청 시 응답 결과 타입
-            contentType: "application/json; charset=utf-8",
-            success : function(data) {
-
-                if (data['totalElements'] == 0) { // 검색 결과가 0건이면
-                    alert('검색 결과가 존재하지 않습니다.');
-                    return;
-
-                } else{
-
-                    places[pageNum+1] = data['content']; // 검색된 카페
-                    // 검색된 카페가 있을 때
-                    // 현재 페이지 검색 결과 출력
-                    // 검색 목록과 마커를 표출합니다
-                    displayPlaces(pageNum+1);
-                    // 페이지 번호를 표출합니다
-                    displayPagination(pageNum+1, data['totalPages']);
-                }
-
-                console.log(data);
-            },
-            error:function(request,status,error){
-                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-            }
-
-        });
-
-    }
 
     // 검색 결과 목록 출력
     function displayPlaces(page) {
         var listEl = document.getElementById('placesList'),
-            menuEl = document.getElementById('places_wrap'),
             fragment = document.createDocumentFragment();
 
         // 검색 결과 목록에 추가된 항목들을 제거합니다
@@ -642,216 +488,15 @@
         }
         // 검색결과 항목들을 검색결과 목록 Element에 추가합니다
         listEl.appendChild(fragment);
-        $("#sort_option").show();
-    }
-
-    // 검색결과 항목을 Element로 반환하는 함수입니다
-    function getListItem(index, place) {
-
-        var el = document.createElement('li'),
-            fragment = document.createDocumentFragment();
-
-        var a_El = document.createElement('a');
-        a_El.href = "/cafe/view/" + place.id;
-        a_El.target = "_blank";
-        // 대표 이미지
-        var imgEl = document.createElement('img');
-        imgEl.src = 'https:' + place.cafeImageUrl;
-        imgEl.id = "place_image";
-        imgEl.className = "imagebg";
-        fragment.appendChild(imgEl);
-
-        var infoEl = document.createElement('div'),
-            infoFragment = document.createDocumentFragment();
-        // 이름
-        var nameEl = document.createElement('h5');
-        nameEl.id = "place_name";
-        nameEl.innerHTML = place.name;
-        infoFragment.appendChild(nameEl);
-
-        // 도로명 주소
-        if (place.roadAddress) {
-            var roadAddressEl = document.createElement('span');
-            roadAddressEl.id = "place_roadAddress";
-            roadAddressEl.innerHTML = place.roadAddress;
-            roadAddressEl.className = "d-block"
-            infoFragment.appendChild(roadAddressEl);
-        }
-        // 지번 주소
-        if (place.address) {
-            var jibunEl = document.createElement('span');
-            jibunEl.id = "place_jibun";
-            jibunEl.innerHTML = place.address;
-            jibunEl.className = "jibun gray d-block";
-            infoFragment.appendChild(jibunEl);
-        }
-        // 전화번호
-        if (place.telephone) {
-            var telEl = document.createElement('span');
-            telEl.innerHTML = place.telephone;
-            telEl.id = "place_tel";
-            telEl.className = "tel d-block";
-            infoFragment.appendChild(telEl);
-        }
-
-        infoEl.appendChild(infoFragment);
-        infoEl.id = "place_info";
-        infoEl.className = "info d-inline-block";
-        fragment.appendChild(infoEl);
-
-        var bookMarkEl = document.createElement('button');
-        bookMarkEl.type = "button";
-        bookMarkEl.className = "btn float-right shadow-none";
-        bookMarkEl.style.padding = "0px";
-        bookMarkEl.id = "bookmark_" + place.id;
-        bookMarkEl.name = "bookmark";
-        bookMarkEl.addEventListener('click', () => bookMarkToggle(place.id));
-        bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
-            '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
-            '</svg>'
-
-        a_El.appendChild(fragment);
-        el.appendChild(a_El);
-        el.appendChild(bookMarkEl);
-        el.className = 'item list_overlay';
-
-        return el;
-    }
-
-    // 북마크 버튼을 눌렀을 때
-    function bookMarkToggle(cafeId) {
-        var bookMarkEl = document.getElementById('bookmark_' + cafeId);
-
-        if(bookMarkEl.getAttribute('name') == 'checked_bookmark') {
-            deleteBookmark(cafeId, bookMarkEl);
-        } else {
-            addBookMark(cafeId, bookMarkEl);
-        }
-    }
-
-    function deleteBookmark(cafeId, bookMarkEl) {
-
-        $.ajax({
-
-            url: '/bookmark/'+ cafeId + '/delete',
-            type: 'post',
-            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
-            dataType: 'json', // 요청 시 응답 결과 타입
-            contentType: "application/json; charset=utf-8",
-            success : function() {
-                // 북마크 제거도 필요
-                bookMarkEl.name = "bookmark";
-                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">' +
-                    '  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>' +
-                    '</svg>'
-            },
-            error:function(request){
-                // 권한 없음 에러일 경우 모달창 보여주기
-                $('#loginModal').modal("show");
-                console.log("code:"+request.status);
-            }
-        });
-
-    }
-
-    // 북마크 추가 요청
-    function addBookMark(cafeId, bookMarkEl) {
-        $.ajax({
-
-            url: '/bookmark/'+ cafeId,
-            type: 'post',
-            async : false, // 응답받은 결과를 전역변수에 저장하기 위해
-            dataType: 'json', // 요청 시 응답 결과 타입
-            contentType: "application/json; charset=utf-8",
-            success : function() {
-                // 성공적으로 북마크 추가되면 하트를 눌러진 상태로 변경
-                bookMarkEl.name = "checked_bookmark";
-                bookMarkEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">' +
-                    '<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>' + '</svg>'
-            },
-            error:function(request){
-                // 권한 없음 에러일 경우 모달창 보여주기
-                $('#loginModal').modal("show");
-                console.log("code:"+request.status);
-            }
-        });
+        $("#info-main").hide();
+        $("#places_wrap").show();
+        backToTop();
     }
 
     // 검색결과 목록의 자식 Element를 제거하는 함수입니다
     function removeAllChildNods(el) {
         while (el.hasChildNodes()) {
             el.removeChild (el.lastChild);
-        }
-    }
-
-    // 데이터를 한 번에 가져와서 페이지별로 화면 출력 구현
-    // 검색결과 목록 하단에 페이지번호를 표시는 함수입니다
-    function displayPagination(page, totalPages) {
-        var paginationEl = document.getElementById('pagination'),
-            fragment = document.createDocumentFragment();
-
-        // 기존에 추가된 페이지번호를 삭제합니다
-        while (paginationEl.hasChildNodes()) {
-            paginationEl.removeChild (paginationEl.lastChild);
-        }
-
-        let showPage = 5; // 화면에 보일 페이지 번호 개수
-        let totalPage = totalPages; // 전체 페이지 수
-        if(totalPage > 34) {
-            totalPage = 34; // 전체 페이지는 34까지 제한 -> 최대 15x34 = 510 개의 카페 목록 제공
-        }
-
-        let pageGroupNum = Math.ceil(page / showPage); // 현재 페이지 그룹
-        let lastPage = pageGroupNum * showPage; // 화면에 보여주는 마지막 페이지의 번호
-        if (lastPage > totalPage) {
-            lastPage = totalPage;
-        }
-        let firstPage = (pageGroupNum - 1) * showPage + 1
-
-        let prev = firstPage - 1;
-        let next = lastPage + 1;
-
-        if (prev != 0) { // 이전 페이지가 있으면
-            var el = document.createElement('a');
-            el.href = "#";
-            el.innerHTML = '<';
-            el.onclick = goto(prev, totalPages);
-            fragment.appendChild(el);
-        }
-
-        for (let i=firstPage; i<=lastPage; i++) { // 페이지 번호 생성
-            var el = document.createElement('a');
-            el.href = "#";
-            el.innerHTML = i;
-
-            if (i===page){
-                el.className = 'on';
-            } else {
-                el.onclick = goto(i, totalPages);
-            }
-            fragment.appendChild(el);
-        }
-
-        if (next <= totalPage) { // 다음 페이지가 있으면
-            var el = document.createElement('a');
-            el.href = "#";
-            el.innerHTML = '>';
-            el.onclick = goto(next, totalPages);
-            fragment.appendChild(el);
-        }
-
-        paginationEl.appendChild(fragment);
-    }
-
-    // 페이지 번호 클릭 시 해당 페이지 목록으로 이동시키는 함수
-    function goto(nextPage, totalPages) {
-        return function() {
-            if(nextPage in places) { // 이미 조회했던 페이지라면
-                displayPlaces(nextPage);
-                displayPagination(nextPage, totalPages);
-            } else{
-                searchApi(nextPage-1); // api는 0페이지부터 검색하므로 -1하여 호출
-            }
         }
     }
 
