@@ -8,9 +8,10 @@ import lombok.*;
 @Builder
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class Member extends BaseTime{
+public class Member extends BaseTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;     // 시스템 상 고유 번호
