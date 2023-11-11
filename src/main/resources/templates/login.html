@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width", initial-scale="1">
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Agbalumo&display=swap" rel="stylesheet">
+    <title>Cafegaza</title>
+    <style>
+
+        .login-div {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .login-form {
+            text-align: center;
+            margin-top: 130px;
+        }
+
+        .for-login-box {
+            width: 300px;
+            height: 45px;
+        }
+
+        #search_area {
+            margin-top: 100px;
+        }
+        .search_btn, .search_btn:hover{
+            width: 50px;
+            border: none;
+        }
+        .search_input {
+            padding: 0.5rem !important;
+            margin-bottom: 1rem !important;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            width: 750px;
+            height: 65px;
+            border-radius: 30px;
+            border: 2px double #6c757d;
+            background-color: white;
+            box-sizing: border-box;
+        }
+
+        .list_wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        .list_card {
+            width: 15rem;
+            display: inline-block;
+            border-radius: 50px;
+            margin: 3px;
+        }
+
+        #place .imagebg {
+            width:15rem;
+            height:15rem;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        #place:hover {
+            transform: translate(0, -10px);
+        }
+
+        .header-navbar {
+            display: block;
+            background: #f8f8f8;
+            box-shadow: 1px 1px 40px 15px #dadce0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="login-div">
+    <form class="login-form" id="loginForm" onsubmit="return false;" autocomplete="off">
+
+        <h2 style=" font-size: 55px; font-family: 'Agbalumo';">Cafegaza</h2>
+        <div style="margin-top: 40px"></div>
+
+        <input class="for-login-box" type="text" id="memberId" name="memberId" placeholder="아이디" title="아이디" />
+        <div style="margin-top: 10px"></div>
+
+        <input class="for-login-box" type="password" id="memberPassword" name="memberPassword" title="비밀번호" placeholder="비밀번호" />
+        <div style="margin-top: 20px"></div>
+
+        <button type="button" onclick="login();" class="for-login-box">로그인</button>
+        <div style="margin-top: 50px"></div>
+        <button type="button"onclick="join();" class="for-login-box">회원가입</button>
+    </form>
+</div>
+
+<script>
+    function login() {
+
+        let memberId = $("#memberId").val();
+        let memberPassword = $("#memberPassword").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/login",
+            data: {
+                memberId: memberId,
+                memberPassword: memberPassword
+            },
+            success: function() {
+                location.href = "/"
+            },
+            error: function() {
+                alert("잘못된 아이디 또는 비밀번호입니다")
+            }
+        });
+    }
+
+    function join() {
+        location.href = "join"
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+</body>
+</html>

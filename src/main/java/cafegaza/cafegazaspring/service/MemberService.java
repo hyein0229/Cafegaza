@@ -2,6 +2,8 @@ package cafegaza.cafegazaspring.service;
 
 import cafegaza.cafegazaspring.domain.Member;
 import cafegaza.cafegazaspring.dto.MemberDto;
+import cafegaza.cafegazaspring.dto.MemberProfileDto;
+import cafegaza.cafegazaspring.repository.FollowRepository;
 import cafegaza.cafegazaspring.repository.MemberRepository;
 import jakarta.mail.Message;
 import jakarta.mail.internet.InternetAddress;
@@ -9,8 +11,8 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -19,44 +21,58 @@ import java.util.regex.Pattern;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final FollowRepository followRepository;
     private final JavaMailSender javaMailSender;
     private final String emailAuthCode = createCode();
+    private boolean checkEmailAuth = false;
 
     /*
         회원가입
      */
-    public boolean join(MemberDto memberDto) {
-        alreadyExistUserId(memberDto);
-        alreadyExistNickname(memberDto);
-        validPassword(memberDto);
+    public boolean join(String userId, String nickname, String password) {
 
-        memberRepository.save(memberDto.toEntity());
+        if (checkEmailAuth){
+            Member member = new Member();
+            member.setUserId(userId);
+            member.setNickname(nickname);
+            member.setPassword(password);
+
+            memberRepository.save(member);
+            return true;
+        }
+
+        return false;
+    }
+
+    // userId 중복 확인
+    public boolean alreadyExistUserId(String userId) {
+        memberRepository.findByUserId(userId).ifPresent(u -> {
+            throw new IllegalStateException("아이디 중복");
+        });
 
         return true;
     }
 
-    // userId 중복 확인
-    public void alreadyExistUserId(MemberDto memberDto) {
-        memberRepository.findByUserId(memberDto.getUserId()).ifPresent(u -> {
-            throw new IllegalStateException("이미 존재하는 아이디입니다.");
-        });
-    }
-
     // nickname 중복 확인
-    public void alreadyExistNickname(MemberDto memberDto) {
-        memberRepository.findByNickname(memberDto.getNickname()).ifPresent(n -> {
-            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+    public boolean alreadyExistNickname(String nickname) {
+        memberRepository.findByNickname(nickname).ifPresent(n -> {
+            throw new IllegalStateException("닉네임 중복");
         });
+
+        return true;
     }
 
     // password 조건 충족 여부 확인
-    public void validPassword(MemberDto memberDto) {
+    // 영어 대소문자, 숫자, 특수문자를 포함한 8~16자리
+    public boolean validPassword(String pwd) {
         String passwordPattern = "^(?=.*[a-zA-Z])((?=.*\\d)|(?=.*\\W)).{8,16}+$";
-        boolean validPattern = Pattern.matches(passwordPattern, memberDto.getPassword());
+        boolean validPattern = Pattern.matches(passwordPattern, pwd);
 
         if (!validPattern) {
-            throw new IllegalStateException("영어 대소문자, 숫자, 특수문자를 포함한 8~16자리 비밀번호를 생성해주세요.");
+            throw new IllegalStateException("잘못된 비밀번호 형식");
         }
+
+        return true;
     }
 
     // 인증 번호 8자리 생성
@@ -122,19 +138,19 @@ public class MemberService {
             javaMailSender.send(message);
         }catch(MailException es){
             es.printStackTrace();
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("잘못된 메일 형식 입력");
         }
     }
 
     // 인증 번호 일치/불일치 확인
     public boolean checkAuthCode(String emailAuthCode) {
         if (!emailAuthCode.equals(this.emailAuthCode)) {
-            throw new IllegalStateException("메일 인증 번호가 틀렸습니다.");
+            throw new IllegalStateException("잘못된 인증번호 입력");
         }
 
+        checkEmailAuth = true;
         return true;
     }
-
 
     /*
         로그인
@@ -142,29 +158,73 @@ public class MemberService {
     public boolean login(String userId, String password) {
         Optional<Member> findMember = memberRepository.findByUserId(userId);
 
-        checkId(findMember);
-        checkPassword(findMember, password);
+        if (checkId(findMember) && checkPassword(findMember, password)){ return true; }
 
-        return true;
+        return false;
     }
 
     // 사용자가 입력한 아이디가 DB에 저장되어 있는 아이디인지 확인
-    public void checkId(Optional<Member> findMember) {
-        findMember.orElseThrow(() -> new NoSuchElementException("아이디를 찾을 수 없습니다."));
+    public boolean checkId(Optional<Member> findMember) {
+        if (findMember != null) { return true; }
+
+        return false;
     }
 
     // 아이디가 저장되어 있다면,
     // 사용자가 입력한 비밀번호가 해당 아이디의 비밀번호와 일치하는 지 확인
-    public void checkPassword(Optional<Member> findMember, String password) {
-
-        if (!findMember.get().getPassword().equals(password)) {
-            throw new IllegalStateException("비밀번호가 틀렸습니다.");
+    public boolean checkPassword(Optional<Member> findMember, String password) {
+        if (findMember.get().getPassword().equals(password)) {
+            return true;
         }
+
+        return false;
     }
 
     public Optional<Member> returnMemberData(String userId) {
         Optional<Member> memberData = memberRepository.findByUserId(userId);
 
         return memberData;
+    }
+
+    /*
+        myPage에 follow 정보 출력
+     */
+    @Transactional(readOnly = true)
+    public MemberProfileDto myProfileDto(Long sessionId) {
+        MemberProfileDto myProfileDto = new MemberProfileDto();
+
+        Member member = memberRepository.findById(sessionId).orElseThrow();
+
+        int followingCount = followRepository.followingCount(sessionId);
+        int followedCount = followRepository.followingCount(sessionId);
+
+        myProfileDto.setMember(member);
+        myProfileDto.setFollowingCount(followingCount);
+        myProfileDto.setFollowedCount(followedCount);
+
+        return myProfileDto;
+    }
+
+    /*
+        memberPage에 follow 정보 출력
+        pageUserId: 해당 memberPage의 member ID
+        sessionId: 로그인되어 있는 member ID
+     */
+    @Transactional(readOnly = true)
+    public MemberProfileDto memberProfileDto(Long pageUserId, Long sessionId) {
+        MemberProfileDto memberProfileDto = new MemberProfileDto();
+
+        Member member = memberRepository.findById(pageUserId).orElseThrow();
+
+        int followState = followRepository.followState(sessionId, pageUserId);
+        int followingCount = followRepository.followingCount(pageUserId);
+        int followedCount = followRepository.followingCount(pageUserId);
+
+        memberProfileDto.setMember(member);
+        memberProfileDto.setFollowState(followState == 1);
+        memberProfileDto.setFollowingCount(followingCount);
+        memberProfileDto.setFollowedCount(followedCount);
+
+        return memberProfileDto;
     }
 }

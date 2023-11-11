@@ -1,5 +1,6 @@
 package cafegaza.cafegazaspring.config;
 
+import cafegaza.cafegazaspring.repository.FollowRepository;
 import cafegaza.cafegazaspring.repository.MemberRepository;
 import cafegaza.cafegazaspring.service.MemberService;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,14 +17,16 @@ import java.util.Properties;
 public class MemberConfig {
 
     private final MemberRepository memberRepository;
+    private final FollowRepository followRepository;
 
-    public MemberConfig(MemberRepository memberRepository){
+    public MemberConfig(MemberRepository memberRepository, FollowRepository followRepository){
         this.memberRepository = memberRepository;
+        this.followRepository = followRepository;
     }
 
     @Bean
     public MemberService memberService() {
-        return new MemberService(memberRepository, javaMailSender());
+        return new MemberService(memberRepository, followRepository, javaMailSender());
     }
 
     @Value("${mail.smtp.port}")

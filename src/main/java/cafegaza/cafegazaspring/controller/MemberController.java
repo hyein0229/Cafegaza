@@ -2,17 +2,19 @@ package cafegaza.cafegazaspring.controller;
 
 import cafegaza.cafegazaspring.domain.Member;
 import cafegaza.cafegazaspring.dto.MemberDto;
+import cafegaza.cafegazaspring.dto.MemberProfileDto;
+import cafegaza.cafegazaspring.security.CustomMemberDetails;
 import cafegaza.cafegazaspring.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -33,32 +35,46 @@ public class MemberController {
 
     // 추후, ui가 완성됨에 따라 View에 보여 줄 정보 처리 필요
     @PostMapping("/join")
-    public String joinProcess(@Valid @ModelAttribute MemberDto memberDto , BindingResult bindingResult) {
+    public ResponseEntity joinProcess(@RequestParam("id") String userId, @RequestParam("password") String password,
+                                      @RequestParam("nickname") String nickname) {
 
-        // 회원가입 성공 시, 홈 화면으로 이동
-        if(memberService.join(memberDto) && checkAuthMail && bindingResult.hasErrors()) {
+        boolean checkUserId = memberService.alreadyExistUserId(userId);
+        boolean checkNickname = memberService.alreadyExistNickname(nickname);
+        boolean checkPwd = memberService.validPassword(password);
 
-            return "redirect:/";
+        if(!checkUserId) {
+            return ResponseEntity.ok("중복되는 아이디입니다");
         }
 
-        return  "join";
+        if(!checkNickname) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("중복되는 닉네임입니다");
+        }
+
+        if(!checkPwd) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("영어 대소문자, 숫자, 특수문자를 포함한 8~16자리의 비밀번호를 생성해주세요");
+        }
+
+        // 회원가입 성공 시, 홈 화면으로 이동
+        if(checkUserId && checkNickname && checkPwd) {
+            memberService.join(userId, nickname, password);
+
+            return ResponseEntity.ok("join success");
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("null");
     }
 
 
     // 인증 메일 전송
     @PostMapping("/mailSend")
-    public String sendMail(@RequestParam String emailSend) throws Exception {
+    public void sendMail(@RequestParam("memberEmail") String emailSend) throws Exception {
         memberService.sendAuthMail(emailSend);
-
-        return "join";
     }
 
     // 인증 번호 일치/불일치 확인
     @PostMapping("/mailAuth")
-    public String CheckMailAuth(String emailAuth) {
-        checkAuthMail =  memberService.checkAuthCode(emailAuth);
-
-        return "join";
+    public boolean CheckMailAuth(@RequestParam("emailAuth") String emailAuth) {
+        return memberService.checkAuthCode(emailAuth);
     }
 
 
@@ -70,14 +86,14 @@ public class MemberController {
         return "login";
     }
 
-    // 추후, ui가 완성됨에 따라 View에 보여 줄 정보 처리 필요
     @PostMapping("/login")
-    public String loginProcess(String userId, String password, HttpServletRequest httpServletRequest) {
+    public ResponseEntity loginProcess(@RequestParam("memberId") String memberId, @RequestParam("memberPassword") String password,
+                                       Model model, HttpServletRequest httpServletRequest) {
 
-        // 로그인 성공 시, 홈 화면으로 이동
-        if(memberService.login(userId, password)) {
+        // 로그인 성공 시
+        if(memberService.login(memberId, password)) {
 
-            Optional<Member> memberData = memberService.returnMemberData(userId);
+            Optional<Member> memberData = memberService.returnMemberData(memberId);
 
             // 기존 세션 파기
             httpServletRequest.getSession().invalidate();
@@ -87,10 +103,26 @@ public class MemberController {
             // 세션 30분 동안 유지
             session.setMaxInactiveInterval(1800);
 
-            return "redirect:/";
+            return ResponseEntity.ok("login success");
         }
 
-        // 로그인 실패 시, 로그인 페이지 유지
-        return "login";
+        // 로그인 실패 시
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
+
+    @GetMapping("/myPage")
+    public String myProfile(Model model, @AuthenticationPrincipal CustomMemberDetails memberDetails) {
+        MemberProfileDto myProfileDto = memberService.myProfileDto(memberDetails.getId());
+        model.addAttribute("myProfileDto", myProfileDto);
+
+        return "myPage";
+    }
+
+//    @GetMapping("/memberPage/{pageUserId}")
+//    public String memberProfile(@PathVariable long pageUserId, Model model, @AuthenticationPrincipal MemberImpl member) {
+//        MemberProfileDto memberProfileDto = memberService.memberProfileDto(pageUserId, member.getId());
+//        model.addAttribute("memberDto", memberProfileDto);
+//
+//        return "memberPage";
+//    }
 }
