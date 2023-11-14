@@ -167,7 +167,9 @@
                 let resMsg = res.message;
                 alert(resMsg);
 
-                location.href = "/login"
+                if (resMsg == "회원가입 성공 ;)") {
+                    location.href = "/login";
+                }
             },
             error: function() {
                 alert("빈 칸을 모두 입력해주세요")
