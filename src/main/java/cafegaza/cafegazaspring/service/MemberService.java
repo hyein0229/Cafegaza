@@ -1,7 +1,6 @@
 package cafegaza.cafegazaspring.service;
 
 import cafegaza.cafegazaspring.domain.Member;
-import cafegaza.cafegazaspring.dto.MemberDto;
 import cafegaza.cafegazaspring.dto.MemberProfileDto;
 import cafegaza.cafegazaspring.repository.FollowRepository;
 import cafegaza.cafegazaspring.repository.MemberRepository;
@@ -24,40 +23,34 @@ public class MemberService {
     private final FollowRepository followRepository;
     private final JavaMailSender javaMailSender;
     private final String emailAuthCode = createCode();
-    private boolean checkEmailAuth = false;
 
     /*
         회원가입
      */
-    public boolean join(String userId, String nickname, String password) {
+    public void join(String userId, String nickname, String password, String email) {
+        Member member = new Member();
+        member.setUserId(userId);
+        member.setNickname(nickname);
+        member.setPassword(password);
+        member.setEmail(email);
 
-        if (checkEmailAuth){
-            Member member = new Member();
-            member.setUserId(userId);
-            member.setNickname(nickname);
-            member.setPassword(password);
-
-            memberRepository.save(member);
-            return true;
-        }
-
-        return false;
+        memberRepository.save(member);
     }
 
     // userId 중복 확인
-    public boolean alreadyExistUserId(String userId) {
-        memberRepository.findByUserId(userId).ifPresent(u -> {
-            throw new IllegalStateException("아이디 중복");
-        });
+    public boolean alreadyExistUserId(String userId){
+        int existUserId = memberRepository.isExistUserId(userId);
+
+        if (existUserId == 1) { return false; }
 
         return true;
     }
 
     // nickname 중복 확인
-    public boolean alreadyExistNickname(String nickname) {
-        memberRepository.findByNickname(nickname).ifPresent(n -> {
-            throw new IllegalStateException("닉네임 중복");
-        });
+    public boolean alreadyExistNickname(String nickname){
+        int existNickname = memberRepository.isExistNickname(nickname);
+
+        if (existNickname == 1) { return false; }
 
         return true;
     }
@@ -68,9 +61,7 @@ public class MemberService {
         String passwordPattern = "^(?=.*[a-zA-Z])((?=.*\\d)|(?=.*\\W)).{8,16}+$";
         boolean validPattern = Pattern.matches(passwordPattern, pwd);
 
-        if (!validPattern) {
-            throw new IllegalStateException("잘못된 비밀번호 형식");
-        }
+        if (!validPattern) { return false; }
 
         return true;
     }
@@ -131,24 +122,27 @@ public class MemberService {
     }
 
     // 인증 메일 보내기
-    public void sendAuthMail(String to) throws Exception {
+    public boolean sendAuthMail(String to) throws Exception {
         MimeMessage message = createMessage(to);
 
         try{
             javaMailSender.send(message);
-        }catch(MailException es){
+
+            return true;
+        } catch(MailException es){
             es.printStackTrace();
-            throw new IllegalArgumentException("잘못된 메일 형식 입력");
+
+            return false;
         }
     }
 
     // 인증 번호 일치/불일치 확인
     public boolean checkAuthCode(String emailAuthCode) {
         if (!emailAuthCode.equals(this.emailAuthCode)) {
-            throw new IllegalStateException("잘못된 인증번호 입력");
+            //throw new IllegalStateException("잘못된 인증번호 입력");
+            return false;
         }
 
-        checkEmailAuth = true;
         return true;
     }
 
