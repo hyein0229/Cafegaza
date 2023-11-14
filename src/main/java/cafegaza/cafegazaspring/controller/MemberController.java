@@ -1,15 +1,14 @@
 package cafegaza.cafegazaspring.controller;
 
 import cafegaza.cafegazaspring.domain.Member;
-import cafegaza.cafegazaspring.dto.MemberDto;
 import cafegaza.cafegazaspring.dto.MemberProfileDto;
 import cafegaza.cafegazaspring.security.CustomMemberDetails;
 import cafegaza.cafegazaspring.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -33,48 +32,67 @@ public class MemberController {
         return "join";
     }
 
-    // 추후, ui가 완성됨에 따라 View에 보여 줄 정보 처리 필요
     @PostMapping("/join")
     public ResponseEntity joinProcess(@RequestParam("id") String userId, @RequestParam("password") String password,
-                                      @RequestParam("nickname") String nickname) {
+                                      @RequestParam("nickname") String nickname, @RequestParam("email") String email) {
 
         boolean checkUserId = memberService.alreadyExistUserId(userId);
         boolean checkNickname = memberService.alreadyExistNickname(nickname);
         boolean checkPwd = memberService.validPassword(password);
 
+        // 아이디 중복 확인
         if(!checkUserId) {
-            return ResponseEntity.ok("중복되는 아이디입니다");
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\": \"중복되는 아이디입니다\"}");
         }
 
+        // 닉네임 중복 확인
         if(!checkNickname) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("중복되는 닉네임입니다");
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\": \"중복되는 닉네임입니다\"}");
         }
 
+        // 비밀번호 조건 충족 확인
         if(!checkPwd) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("영어 대소문자, 숫자, 특수문자를 포함한 8~16자리의 비밀번호를 생성해주세요");
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\": \"영어 대소문자, 숫자, 특수문자를 포함한 8~16자리의 비밀번호를 생성해주세요\"}");
         }
 
-        // 회원가입 성공 시, 홈 화면으로 이동
-        if(checkUserId && checkNickname && checkPwd) {
-            memberService.join(userId, nickname, password);
+        // 아이디와 닉네임 중복 X, 비밀번호 조건 충족, 메일 인증 완료 시, 회원가입 실시
+        if(checkUserId && checkNickname && checkPwd && checkAuthMail) {
+            memberService.join(userId, nickname, password, email);
 
-            return ResponseEntity.ok("join success");
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"message\": \"회원가입 성공 ;)\"}");
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("null");
+        throw new IllegalStateException("회원 가입 오류");
     }
 
 
     // 인증 메일 전송
     @PostMapping("/mailSend")
-    public void sendMail(@RequestParam("memberEmail") String emailSend) throws Exception {
-        memberService.sendAuthMail(emailSend);
+    public ResponseEntity sendMail(@RequestParam("email") String email) throws Exception {
+        if (memberService.sendAuthMail(email)) {
+            return ResponseEntity.ok().body("인증 번호 전송 완료");
+        }
+
+        throw new IllegalStateException("인증 번호 전송 오류");
     }
 
     // 인증 번호 일치/불일치 확인
     @PostMapping("/mailAuth")
-    public boolean CheckMailAuth(@RequestParam("emailAuth") String emailAuth) {
-        return memberService.checkAuthCode(emailAuth);
+    public ResponseEntity CheckMailAuth(@RequestParam("emailAuthText") String emailAuth) {
+        if (memberService.checkAuthCode(emailAuth)) {
+            checkAuthMail = true;
+            return ResponseEntity.ok().body("메일 인증 완료");
+        }
+
+        throw new IllegalStateException("인증 번호 불일치");
     }
 
 
