@@ -1,6 +1,6 @@
 package cafegaza.cafegazaspring.service;
 
-import cafegaza.cafegazaspring.controller.ReviewForm;
+import cafegaza.cafegazaspring.dto.ReviewForm;
 import cafegaza.cafegazaspring.domain.Cafe;
 import cafegaza.cafegazaspring.domain.Member;
 import cafegaza.cafegazaspring.domain.Review;
@@ -36,28 +36,17 @@ public class ReviewService { // 리뷰 작성, 수정, 삭제, 읽기 기능 필
      */
     @Transactional
     public ReviewDto create(Long cafeId, Long memberId, ReviewForm reviewForm) throws Exception {
-
         // 대상 카페와 사용자 엔티티 찾기
-        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
-                () -> new NoSuchElementException("카페를 찾을 수 없습니다."));
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
+        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(() -> new NoSuchElementException("카페를 찾을 수 없습니다."));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
 
-        // 리뷰 이미지 엔티티 생성
-        List<ReviewImage> reviewImages = new ArrayList<>();
-        if (!reviewForm.getImageFiles().isEmpty()) { // 사용자가 업로드한 이미지가 있다면
-            List<FileDto> fileDtoList = reviewForm.getImageFiles();
-            for(int i=0; i<fileDtoList.size(); i++) {
-                 ReviewImage reviewImage = (ReviewImage) fileRepository.findById(fileDtoList.get(i).getId()).get();
-                 reviewImages.add(reviewImage);
-            }
-        }
+        // 이미지 엔티티 가져오기
+        List<ReviewImage> reviewImages = getReviewImages(reviewForm.getImageFiles());
 
-        Review review = Review.createReview(cafe, member, reviewForm.getContent(), reviewForm.getRate(), reviewImages); // review 엔티티 생성
-        reviewRepository.save(review); // review db 에 저장
+        Review review = Review.createReview(cafe, member, reviewForm.getContent(), reviewForm.getRate(), reviewImages); // 리뷰 엔티티 생성
+        reviewRepository.save(review); // DB 저장
 
-        double rate = cafeRepository.findAvgRate(cafe);
-        cafe.updateRate(Double.parseDouble(String.format("%.1f", rate)));
+        updateRate(cafe); // 별점 업데이트
 
         return ReviewDto.toDto(review);
     }
@@ -67,45 +56,16 @@ public class ReviewService { // 리뷰 작성, 수정, 삭제, 읽기 기능 필
      */
     @Transactional
     public ReviewDto update(Long reviewId, ReviewForm reviewForm) throws Exception {
+        // 기존 리뷰 가져오기
         Review findReview = reviewRepository.findById(reviewId).get();
+        // 리뷰 이미지 엔티티
+        List<ReviewImage> reviewImages = getReviewImages(reviewForm.getImageFiles());
+        // 리뷰 내용 갱신
+        findReview.update(reviewForm.getContent(), reviewForm.getRate(), reviewImages);
 
-        // 리뷰 이미지 엔티티 생성
-        List<ReviewImage> reviewImages = new ArrayList<>();
-        if (!reviewForm.getImageFiles().isEmpty()) { // 사용자가 업로드한 이미지가 있다면
-            List<FileDto> fileDtoList = reviewForm.getImageFiles();
-            for(int i=0; i<fileDtoList.size(); i++) {
-                ReviewImage reviewImage = (ReviewImage) fileRepository.findById(fileDtoList.get(i).getId()).get();
-                reviewImages.add(reviewImage);
-            }
-        }
+        updateRate(findReview.getCafe()); // 별점 업데이트
 
-        findReview.update(reviewForm.getContent(), reviewForm.getRate(), reviewImages); // 리뷰 내용 갱신
         return ReviewDto.toDto(findReview);
-    }
-
-//    /**
-//      multipartFile to review Image entity
-//     */
-//    private List<ReviewImage> multipartFileToReviewImage(List<MultipartFile> multipartFiles) throws Exception {
-//
-//        List<ReviewImage> reviewImages = new ArrayList<>();
-//        for (MultipartFile multipartFile : multipartFiles) {
-//            ReviewImage reviewImage = (ReviewImage) fileHandler.saveFiles(multipartFile); // 리뷰 이미지 저장
-//            reviewImages.add(reviewImage);
-//        }
-//        return reviewImages;
-//    }
-
-    /**
-     페이지별 리뷰 읽기 (가져오기)
-     */
-    public Page<ReviewDto> findList(Long cafeId, Pageable pageable) {
-
-        Cafe findCafe = cafeRepository.findById(cafeId).get(); // 리뷰 대상 카페 엔티티
-        Page<Review> reviews = reviewRepository.findByCafeOrderByCreatedDateDesc(findCafe, pageable);
-        Page<ReviewDto> reviewDtos = new ReviewDto().toDtoList(reviews);
-        return reviewDtos;
-
     }
 
     /**
@@ -114,26 +74,48 @@ public class ReviewService { // 리뷰 작성, 수정, 삭제, 읽기 기능 필
     @Transactional
     public void delete(Long reviewId) {
         Review findReview = reviewRepository.findById(reviewId).orElseThrow(
-                () -> new NoSuchElementException("리뷰를 찾을 수 없습니다."));;
+                () -> new NoSuchElementException("리뷰를 찾을 수 없습니다."));
 
-//        if(!findReview.getReviewImages().isEmpty()){
-//            fileRepository.deleteAll(findReview.getReviewImages());
-//        }
-        Cafe cafe = findReview.getCafe();
-        findReview.delete();
-        reviewRepository.delete(findReview);
+        Cafe cafe = findReview.getCafe(); // 리뷰를 작성한 가게 찾기
+        findReview.delete(); // 연관관계 해제
+        reviewRepository.delete(findReview); // 엔티티 삭제
+        updateRate(cafe); // 별점 업데이트
+    }
 
+    // 리뷰 추가, 수정, 삭제로 인한 별점 업데이트
+    private void updateRate(Cafe cafe) {
+        // 별점 업데이트
         if(!cafe.getReviews().isEmpty()) {
-            double rate = cafeRepository.findAvgRate(cafe);
+            double rate = cafeRepository.findAvgRate(cafe); // 평균 별점 구하기
             cafe.updateRate(Double.parseDouble(String.format("%.1f", rate)));
-        } else{
+        } else{ // 리뷰가 없다면 0으로 초기화
             cafe.updateRate(0);
         }
     }
 
+    // 이미지 엔티티 가져오기
+    private List<ReviewImage> getReviewImages(List<FileDto> imageFiles) {
+        List<ReviewImage> reviewImages = new ArrayList<>();
+        if (!imageFiles.isEmpty()) { // 사용자가 업로드한 이미지가 있다면
+            List<FileDto> fileDtoList = imageFiles;
+            for(int i=0; i<fileDtoList.size(); i++) {
+                ReviewImage reviewImage = (ReviewImage) fileRepository.findById(fileDtoList.get(i).getId()).get(); // 미리 저장했던 이미지 엔티티 가져오기
+                reviewImages.add(reviewImage);
+            }
+        }
+        return reviewImages;
+    }
+
+    /**
+     페이지별 리뷰 읽기 (가져오기)
+     */
+    public Page<ReviewDto> findList(Long cafeId, Pageable pageable) {
+        Cafe cafe = cafeRepository.findById(cafeId).get(); // 리뷰 대상 카페 엔티티
+        Page<Review> reviews = reviewRepository.findByCafeOrderByCreatedDateDesc(cafe, pageable); // 생성일 기준 내림차순으로 찾기
+        return new ReviewDto().toDtoList(reviews);
+    }
+
     public Review findOne(Long reviewId) {
         return reviewRepository.findById(reviewId).get();
-    } // id 로 리뷰 찾기
-
-
+    }
 }
