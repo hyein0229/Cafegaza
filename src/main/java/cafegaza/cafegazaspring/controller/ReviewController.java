@@ -1,7 +1,8 @@
 package cafegaza.cafegazaspring.controller;
 
 import cafegaza.cafegazaspring.dto.ReviewDto;
-import cafegaza.cafegazaspring.service.CafeSearchService;
+import cafegaza.cafegazaspring.dto.ReviewForm;
+import cafegaza.cafegazaspring.service.CafeService;
 import cafegaza.cafegazaspring.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final CafeSearchService cafeSearchService;
+    private final CafeService cafeService;
 
     /**
         해당 페이지의 리뷰 목록 가져오기
@@ -25,15 +26,6 @@ public class ReviewController {
     @GetMapping("/review/{cafeId}") // ?page=0&size=15
     public Page<ReviewDto> reviewList(@PathVariable("cafeId") Long cafeId, Pageable pageable) {
         return reviewService.findList(cafeId, pageable);
-    }
-
-    /**
-      가게 리뷰 사진 가져오기
-     */
-    @ResponseBody
-    @GetMapping("/reviewImage/{cafeId}") // ?page=0&size=15
-    public Page<String> getReviewImages(@PathVariable("cafeId") Long cafeId, Pageable pageable) {
-        return cafeSearchService.getImages(cafeId, pageable);
     }
 
 
