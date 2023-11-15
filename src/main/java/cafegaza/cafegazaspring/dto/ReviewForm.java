@@ -1,4 +1,4 @@
-package cafegaza.cafegazaspring.controller;
+package cafegaza.cafegazaspring.dto;
 
 import cafegaza.cafegazaspring.dto.FileDto;
 import jakarta.validation.constraints.NotEmpty;
