@@ -1,20 +1,15 @@
 package cafegaza.cafegazaspring.repository;
 
-import cafegaza.cafegazaspring.controller.SearchQuery;
+import cafegaza.cafegazaspring.dto.SearchQuery;
 import cafegaza.cafegazaspring.domain.*;
-import com.querydsl.core.Query;
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.*;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,16 +30,16 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
      * 다중 조건으로 카페 검색하기
      */
     @Override
-    public Page<Cafe> findByMultipleCond(String region, String keyword, double[] centerCoord, SearchQuery searchQuery, Pageable pageable) {
+    public Page<Cafe> findByMultipleCond(SearchQuery searchQuery, Pageable pageable) {
 
         List<Cafe> cafeList =  queryFactory
                 .select(cafe).distinct()
                 .from(cafe)
                 .leftJoin(menu).on(cafe.eq(menu.cafe))
                 .leftJoin(openHour).on(cafe.eq(openHour.cafe))
-                .where(regionContain(region)
-                        , withinRadius(centerCoord)
-                        , keywordContain(keyword)
+                .where(regionContain(searchQuery.getRegion())
+                        , withinRadius(searchQuery.getCenterCoord())
+                        , keywordContain(searchQuery.getKeyword())
                         , menuContain(searchQuery.getMenuOption())
                         , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour())
                         , isCurrentOpen(searchQuery.getCurrentOpen())
@@ -57,30 +52,14 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-
-        // 페이징을 적용하지 않은 전체 결과의 크기 쿼리
-//        JPAQuery<Long> count = queryFactory
-//                .select(cafe.cafeId.countDistinct()) // count()-> 중복 제거가 안됨 countDistinct 로 pk 중복을 제거
-//                .from(cafe)
-//                .leftJoin(menu).on(cafe.eq(menu.cafe))
-//                .where(regionContain(region), withinRadius(centerCoord), keywordContain(keyword), menuContain(searchQuery.getMenuOption()))
-//                .groupBy(cafe.cafeId)
-//                .having(priceLowerThan(searchQuery.getMaxPrice()));
-
-        //        return PageableExecutionUtils.getPage(cafeList, pageable, count::fetchOne);
-
-        // group by 추가 이후 countDistinct() 에서 totalElements 수가 맞게 찾아지지 않는 오류 발생, 아직 해결하지 못함
-        // 대신 count() 를 사용했을 땐 fetchOne 에서 NonUniqueResultException 에러 발생 -> 이것도 이유를 아직 못찾음
-        // fetch().size() 를 사용한 int 타입의 count 값을 구하여 페이징에 사용할 수 있도록 일단 PageImpl 리턴 방식으로 변경
-
         int totalCount = queryFactory
                 .select(cafe).distinct() // count()-> 중복 제거가 안됨 countDistinct 로 pk 중복을 제거
                 .from(cafe)
                 .leftJoin(menu).on(cafe.eq(menu.cafe))
                 .leftJoin(openHour).on(cafe.eq(openHour.cafe))
-                .where(regionContain(region)
-                        , withinRadius(centerCoord)
-                        , keywordContain(keyword)
+                .where(regionContain(searchQuery.getRegion())
+                        , withinRadius(searchQuery.getCenterCoord())
+                        , keywordContain(searchQuery.getKeyword())
                         , menuContain(searchQuery.getMenuOption())
                         , openHourCompare(searchQuery.getStartHour(), searchQuery.getEndHour())
                         , isCurrentOpen(searchQuery.getCurrentOpen())
