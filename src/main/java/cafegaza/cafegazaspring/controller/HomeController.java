@@ -1,7 +1,8 @@
 package cafegaza.cafegazaspring.controller;
 
 import cafegaza.cafegazaspring.dto.CafeDto;
-import cafegaza.cafegazaspring.service.CafeSearchService;
+import cafegaza.cafegazaspring.service.CafeService;
+import cafegaza.cafegazaspring.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,14 +15,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HomeController {
 
-    private final CafeSearchService cafeSearchService;
+    private final CafeService cafeService;
 
     @GetMapping("/")
     public String home(@SessionAttribute(name = "sessionId", required = false) Long memberId, Model model) {
 //        if(memberId == null) {
 //            return "home";
 //        }
-        List<CafeDto> popularPlaces = cafeSearchService.getPopularPlaces();
+        List<CafeDto> popularPlaces = cafeService.getPopularPlaces();
         model.addAttribute("member", memberId);
         model.addAttribute("popularPlaces", popularPlaces);
         return "home";

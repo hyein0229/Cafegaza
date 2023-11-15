@@ -18,7 +18,7 @@ public class FileController {
     private final FileService fileService;
 
     /**
-     * 단일 이미지를 등록하였을 때 등록 요청 처리
+     * 리뷰 이미지를 등록하였을 때 등록 요청 처리
      */
     @PostMapping("/upload")
     public ResponseEntity uploadFile(@RequestParam("file") MultipartFile multipartFile) throws Exception {
