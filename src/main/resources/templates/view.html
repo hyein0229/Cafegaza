@@ -59,7 +59,7 @@
             min-height: 100px;
             margin-bottom: 12px;
             margin-right: 10px;
-            float: left;
+            /*float: left;*/
             width: 310px;
             display: none;
         }
@@ -404,12 +404,13 @@
                                 </div>
                             </li>
                         </ul>
-                        <button th:if="${#lists.size(cafe.menus) > 8}" id="menu-more" class="btn" style="width: 100%;">
+                        <button th:if="${#lists.size(cafe.menus) > 6}" id="menu-more" class="btn" style="width: 100%;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"/>
                             </svg>
                             <span style="padding: 5px; margin-right: 28px;">더 보기</span>
                         </button>
+                        <span></span>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="nav-review-tab">
@@ -473,10 +474,10 @@
     // 메뉴 아이템 더보기 기능
     $(function(){
         var count = $(".menu_item").length;
-        $(".menu_item").slice(0, (count > 8 ? 8 : count)).show(); // 초기 보여줄 갯수
+        $(".menu_item").slice(0, (count > 6 ? 6 : count)).show(); // 초기 보여줄 갯수
         $("#menu-more").click(function(e){ // 클릭시 더보기
             e.preventDefault();
-            $(".menu_item:hidden").slice(0, ($(".menu_item:hidden").length > 8 ? 8 : $(".menu_item:hidden").length)).show();
+            $(".menu_item:hidden").slice(0, ($(".menu_item:hidden").length > 6 ? 6 : $(".menu_item:hidden").length)).show();
             if ($(".menu_item:hidden").length == 0) {
                 $("#menu-more").hide();
             }
@@ -965,7 +966,7 @@
 
         $.ajax({
 
-            url: '/reviewImage/' + cafeId + '?page=' + imagePageNum + '&size=40',
+            url: '/image/' + cafeId + '?page=' + imagePageNum + '&size=40',
             type: 'get',
             async: false, // 응답받은 결과를 전역변수에 저장하기 위해
             dataType: 'json', // 요청 시 응답 결과 타입
