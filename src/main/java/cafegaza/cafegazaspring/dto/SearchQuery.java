@@ -1,5 +1,6 @@
-package cafegaza.cafegazaspring.controller;
+package cafegaza.cafegazaspring.dto;
 
+import cafegaza.cafegazaspring.domain.Member;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,9 @@ import lombok.Setter;
 @Setter
 public class SearchQuery {
     private String keyword; // 검색 키워드
-    private String menuOption; // 메뉴 이름 검색
+    private String region = null; // 지역
+    private double[] centerCoord = null;
+    private String menuOption = ""; // 메뉴 이름 검색
     private int maxPrice = 0; // 가격 옵션
     private int startHour = 0; // 영업 시간1 (범위 시작)
     private int endHour = 0; // 영업 시간2 (범위 끝)

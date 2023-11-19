@@ -27,11 +27,10 @@ public class BookmarkService {
         this.memberRepository = memberRepository;
     }
 
-
     /*
         즐겨찾기 추가
      */
-    public boolean addBookmark(Long cafeId, Long memberId) {
+    public Long addBookmark(Long cafeId, Long memberId) {
         Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]카페를 찾을 수 없습니다."));
         Member member = memberRepository.findById(memberId).orElseThrow(
@@ -39,35 +38,33 @@ public class BookmarkService {
 
         // 즐겨찾기가 되어있지 않다면, 즐겨찾기 추가 실시
         if(bookmarkRepository.findByCafeAndMember(cafe, member) == null) {
-            cafeRepository.updateBookmarkCountForAdd(cafe.getCafeId());
+            cafeRepository.updateBookmarkCountForAdd(cafe.getCafeId()); // 북마크 카운트 +1
 
-            BookmarkDto bookmarkDto = new BookmarkDto();
-            bookmarkDto.setCafe(CafeDto.toDto(cafe)); bookmarkDto.setMember(MemberDto.toDto(member));
-            bookmarkRepository.save(bookmarkDto.toEntity());
-
-            return true;
-
-        } else return false;
+            // 북마크 엔티티 생성
+            Bookmark bookmark = Bookmark.builder()
+                        .cafe(cafe)
+                        .member(member)
+                        .build();
+            bookmarkRepository.save(bookmark); // 저장
+            return bookmark.getId();
+        }
+        return null;
     }
 
     /*
         즐겨찾기 삭제
      */
-    public boolean delBookmark(CafeDto cafe, MemberDto member) {
-        cafeRepository.findById(cafe.getId()).orElseThrow(
+    public void delBookmark(Long cafeId, Long memberId) {
+        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]카페를 찾을 수 없습니다."));
-        memberRepository.findById(member.getId()).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new NoSuchElementException("[즐겨찾기]사용자를 찾을 수 없습니다."));
 
         // 즐겨찾기가 되어있다면, 즐겨찾기 삭제 실시
-        if(bookmarkRepository.findByCafeAndMember(cafe.toEntity(), member.toEntity()) != null) {
-            cafeRepository.updateBookmarkCountForDel(cafe.getId());
-
-            Bookmark bookmark = bookmarkRepository.findByCafeAndMember(cafe.toEntity(), member.toEntity());
-            bookmarkRepository.delete(bookmark);
-
-            return true;
-
-        } else return false;
+        Bookmark bookmark = bookmarkRepository.findByCafeAndMember(cafe, member); // 삭제 대상 북마크 엔티티 찾기
+        if(bookmark != null) {
+            cafeRepository.updateBookmarkCountForDel(cafe.getCafeId()); // 카페의 북마크 카운트 -1
+            bookmarkRepository.delete(bookmark); // 북마크 삭제
+        }
     }
 }

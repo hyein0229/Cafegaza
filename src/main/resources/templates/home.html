@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Agbalumo&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="/js/bootstrap.js"></script>
     <title>Cafegaza</title>
     <style>
 
@@ -58,45 +60,22 @@
             transform: translate(0, -10px);
         }
 
-        .header-navbar {
-            display: block;
-            background: #f8f8f8;
-            box-shadow: 1px 1px 40px 15px #dadce0;
+        .place_card {
+            width: 15rem;
+            height: 100%;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            display: inline-block;
+            margin: 0 10px;
+            float: left;
+            background-color: white;
         }
 
     </style>
 </head>
 <body>
 <div id="wrap">
-    <div id="header">
-        <div id="nav_area">
-            <nav class="navbar navbar-expand-lg navbar-light header-navbar">
-                <a class="navbar-brand" href="/">카페가자</a>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/cafe/main">카페 찾기 </a>
-                        </li>
-                        <li th:if="${#strings.isEmpty(member)}" class="nav-item active">
-                            <a class="nav-link" href="/login">로그인</a>
-                        </li>
-                        <li th:unless="${#strings.isEmpty(member)}" class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#">즐겨찾기</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">로그아웃</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    </div>
+    <div th:replace="~{fragments/header :: header}" />
     <div id="container">
         <div id="search_area">
             <div class="d-flex justify-content-center">
@@ -115,57 +94,34 @@
                 </div>
             </div>
         </div>
-        <div class="list_wrap">
-            <div id="popular_list" class="carousel slide" data-bs-touch="false" style="margin-top: 100px;" >
-                <h5 style="text-align: center;"> 최근 핫한 카페 </h5>
-            </div>
-        </div>
+
+        <script th:unless="${#lists.isEmpty(popularPlaces)}" th:inline="javascript">
+
+            $(document).ready(function () {
+                displayCarouselPlaces([[${popularPlaces}]], '요즘 뜨는 카페', 'popular_list');
+            })
+
+        </script>
     </div>
-    <div id="footer"></div>
+    <div th:replace="~{fragments/footer :: footer}" />
 </div>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="/js/bootstrap.js"></script>
 <script>
+    // 인기 많은 가게 Carousel 생성
+    function displayCarouselPlaces(places, title, carouselId) {
 
-    $.ajax({
+        var wrapEl = document.createElement('div');
+        wrapEl.className = 'list_wrap';
 
-        url: '/search?page=' + 0 + '&size=15', // 요쳥을 보낼 서버의 URL 주소 + parameter
-        data: JSON.stringify({ // 질의어
-            'keyword' : '서울 카페',
-            'menuOption' : '',
-            'startHour' : 0,
-            'endHour' : 0,
-            'currentOpen': 0,
-            'dawnOpen' : 0
-        }),
-        type: 'post',
-        async : false,
-        dataType: 'json', // 요청 시 응답 결과 타입
-        contentType: "application/json; charset=utf-8",
-        success : function(data) {
+        // carousel
+        var carouselEl = document.createElement('div');
+        carouselEl.id = carouselId;
+        carouselEl.className = 'carousel slide';
+        carouselEl.style.cssText = 'margin-top: 100px;';
 
-            if (data['totalElements'] == 0) { // 검색 결과가 0건이면
-                alert('검색 결과가 존재하지 않습니다.');
-                return;
+        var carouselTitle = '<h5 style="text-align: center;">' + title + '</h5>';
+        carouselEl.innerHTML = carouselTitle;
 
-            } else{
-                var places = data['content']; // 검색된 카페
-                displayPlaces(places);
-            }
-            console.log(data);
-        },
-        error:function(request,status,error){
-            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-        }
-
-    });
-
-    function displayPlaces(places) {
-        var listEl = document.getElementById('popular_list'),
-            fragment = document.createDocumentFragment();
-
-        var carouselEl = document.createElement('div'),
-            carouselFragment = document.createDocumentFragment();
+        var innerEl = document.createElement('div');
 
         var i = 0;
         while(i < places.length) {
@@ -181,36 +137,29 @@
             if(i==0) {
                 carouselItemEl.classList.add('active');
             }
-            // carouselItemEl.style.display = "flex";
+
             carouselItemEl.style.margin = "50px";
-            carouselFragment.appendChild(carouselItemEl);
+            innerEl.appendChild(carouselItemEl);
             i += 5;
         }
         // carousel inner > carousel item > card
-        carouselEl.className = "carousel-inner";
-        carouselEl.style.height = "430px";
-        carouselEl.style.width = "1400px";
-        carouselEl.appendChild(carouselFragment);
-        fragment.appendChild(carouselEl);
-        listEl.appendChild(fragment);
-        getCarouselButton("popular_list")
+        innerEl.className = "carousel-inner";
+        innerEl.style.cssText = "height: 430px; width: 1400px;";
+        carouselEl.appendChild(innerEl);
+        wrapEl.appendChild(carouselEl);
+        getCarouselButton(carouselEl)
+
+        document.getElementById('container').appendChild(wrapEl);
 
     }
 
+    // 보여줄 가게 아이템 생성
     function getCardItem(index, place) {
 
-        var el = document.createElement('div');
         var a_El = document.createElement('a');
 
         var cardEl = document.createElement('div');
-        cardEl.style.width = "15rem";
-        cardEl.style.height = "100%";
-        cardEl.style.borderRadius = "50px";
-        cardEl.style.border = "1px solid rgba(0, 0, 0, 0.125)";
-        cardEl.style.display = "inline-block";
-        cardEl.style.margin = "0 10px";
-        cardEl.style.float = "left";
-        cardEl.style.backgroundColor = "white";
+        cardEl.className = "place_card";
 
         // 대표 이미지
         var imgEl = document.createElement('img');
@@ -219,10 +168,9 @@
         imgEl.style.borderRadius = "50px 50px 0 0";
 
         var cardBodyEl = document.createElement('div');
-        var contentStr = ""
-        // 이름
-        contentStr += '<h5 className="card-title">' + place.name + '</h5>';
 
+        // 이름
+        var contentStr = '<h5 className="card-title">' + place.name + '</h5>';
         // 도로명 주소
         if (place.roadAddress) {
             contentStr += '    <span style="font-size: 15px;">' + place.roadAddress + '</span>'
@@ -232,25 +180,24 @@
 
         cardBodyEl.innerHTML = contentStr;
         cardBodyEl.className = "card-body";
-        cardBodyEl.style.color = "black";
-        cardBodyEl.style.height = "120px";
+        cardBodyEl.style.cssText = "color: black; height: 120px;";
 
         a_El.appendChild(imgEl);
         a_El.appendChild(cardBodyEl);
-        a_El.href = place.detailUrl;
+        a_El.href = '/cafe/view/' + place.id;
         a_El.style.textAlign = "left";
+
         cardEl.appendChild(a_El);
         cardEl.id="place";
 
         return cardEl;
     }
 
-    function getCarouselButton(carouselId) {
-        var carousellistEl = document.getElementById(carouselId);
-
+    // Carousel 양쪽 버튼 생성
+    function getCarouselButton(carouselEl) {
         var prevEl = document.createElement('a');
         prevEl.className = "carousel-control-prev d-flex justify-content-start";
-        prevEl.href = "#" + carouselId;
+        prevEl.href = "#" + carouselEl.id;
         prevEl.role = "button";
         prevEl.setAttribute('data-slide', 'prev');
 
@@ -264,7 +211,7 @@
 
         var nextEl = document.createElement('a');
         nextEl.className = "carousel-control-next d-flex justify-content-end";
-        nextEl.href = "#" + carouselId;
+        nextEl.href = "#" + carouselEl.id;
         nextEl.role = "button";
         nextEl.setAttribute('data-slide', 'next');
 
@@ -276,13 +223,12 @@
             '          </span>\n';
         nextEl.innerHTML = nextSvg;
 
-        carousellistEl.appendChild(prevEl);
-        carousellistEl.appendChild(nextEl);
+        carouselEl.appendChild(prevEl);
+        carouselEl.appendChild(nextEl);
 
     }
 
-
-    // 검색 페이지로 이동
+    // 카페 검색 페이지로 이동
     function goToSearchMain() {
         var keyword = document.getElementById('keyword').value;
         if (!keyword.replace(/^\s+|\s+$/g, '')) {

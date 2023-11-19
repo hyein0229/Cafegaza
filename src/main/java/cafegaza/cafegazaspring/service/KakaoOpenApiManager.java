@@ -20,6 +20,11 @@ public class KakaoOpenApiManager {
         카카오맵 키워드로 장소 검색하기 rest api 호출
      */
     public KakaoSearchApiResDto kakaomapSearchApi(String query) throws Exception {
+        // 카페 검색을 위한 처리
+        if(!query.contains(" 카페")) {
+            query += " 카페";
+        }
+
         String uriQuery = "?page=1&size=15&sort=accuracy&query="+ URLEncoder.encode(query, "UTF-8");
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
