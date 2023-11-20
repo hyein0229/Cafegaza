@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 @SpringBootTest
 @Transactional
@@ -22,7 +23,7 @@ public class BookmarkServiceTest {
     @Test
     public void 즐겨찾기_추가() {
 
-        if(bookmarkService.addBookmark(1L, 9999L)) {
+        if(bookmarkService.addBookmark(1L, 9999L) != null) {
             System.out.println("bookmark add success");
         }
         else {
@@ -31,15 +32,9 @@ public class BookmarkServiceTest {
     }
 
     @Test
+    @Rollback(value = false)
     public void 즐겨찾기_삭제() {
 
-        bookmarkService.addBookmark(1L, 9999L);
-
-        if(bookmarkService.delBookmark(1L, 9999L)) {
-            System.out.println("bookmark del success");
-        }
-        else {
-            System.out.println("bookmark del failed");
-        }
+        bookmarkService.delBookmark(1L, 9999L);
     }
 }
