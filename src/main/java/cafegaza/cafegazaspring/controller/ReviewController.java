@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final CafeService cafeService;
 
     /**
         해당 페이지의 리뷰 목록 가져오기
@@ -35,12 +34,12 @@ public class ReviewController {
     @ResponseBody
     @PostMapping("/review/{cafeId}/new")
     public ResponseEntity createReview(@SessionAttribute(name = "sessionId", required = false) Long memberId, @PathVariable("cafeId") Long cafeId, @RequestBody ReviewForm reviewForm) throws Exception { // 작성자 정보도 필요System.out.println("test");
-         // 로그인 페이지 구현된 후 다시 추가
-//        if(memberId == null) {
-//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 권한 없음
-//        }
 
-        ReviewDto createdReview = reviewService.create(cafeId, 9999L, reviewForm); // 임시 memberId 를 9999L 로 지정
+        if(memberId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 로그인이 안된 경우 권한 없음
+        }
+
+        ReviewDto createdReview = reviewService.create(cafeId, memberId, reviewForm); // 임시 memberId 를 9999L 로 지정
         return new ResponseEntity<>(createdReview, HttpStatus.OK); // 성공적으로 요청 처리됨
     }
 
@@ -51,9 +50,9 @@ public class ReviewController {
     @PostMapping("/review/{reviewId}/edit")
     public ResponseEntity updateReview(@SessionAttribute(name = "sessionId", required = false) Long memberId, @PathVariable("reviewId") Long reviewId, @RequestBody ReviewForm reviewForm) throws Exception {
 
-//        if(memberId == null) {
-//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 권한 없음
-//        }
+        if(memberId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 권한 없음
+        }
 
         ReviewDto updatedReview = reviewService.update(reviewId, reviewForm);
         return new ResponseEntity<>(updatedReview, HttpStatus.OK);
