@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 @SpringBootTest
 @Transactional
@@ -21,10 +22,8 @@ public class BookmarkServiceTest {
 
     @Test
     public void 즐겨찾기_추가() {
-        Cafe cafe = cafeRepository.findById(1L).orElseThrow();
-        Member member = memberRepository.findById(68L).orElseThrow();  // test를 위해 로컬에 임의로 생성해 놓은 데이터 사용
 
-        if(bookmarkService.addBookmark(cafe.getCafeId(), member.getId())) {
+        if(bookmarkService.addBookmark(1L, 9999L) != null) {
             System.out.println("bookmark add success");
         }
         else {
@@ -33,17 +32,9 @@ public class BookmarkServiceTest {
     }
 
     @Test
+    @Rollback(value = false)
     public void 즐겨찾기_삭제() {
-        Cafe cafe = cafeRepository.findById(1L).orElseThrow();
-        Member member = memberRepository.findById(68L).orElseThrow();
 
-        bookmarkService.addBookmark(cafe.getCafeId(), member.getId());
-
-        if(bookmarkService.delBookmark(CafeDto.toDto(cafe), MemberDto.toDto(member))) {
-            System.out.println("bookmark del success");
-        }
-        else {
-            System.out.println("bookmark del failed");
-        }
+        bookmarkService.delBookmark(1L, 9999L);
     }
 }

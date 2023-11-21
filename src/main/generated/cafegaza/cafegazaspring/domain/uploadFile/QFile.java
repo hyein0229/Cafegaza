@@ -10,14 +10,14 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QUploadFile is a Querydsl query type for UploadFile
+ * QFile is a Querydsl query type for File
  */
-@Generated("com.querydsl.codegen.DefaultSupertypeSerializer")
-public class QUploadFile extends EntityPathBase<UploadFile> {
+@Generated("com.querydsl.codegen.DefaultEntitySerializer")
+public class QFile extends EntityPathBase<File> {
 
-    private static final long serialVersionUID = -1091317097L;
+    private static final long serialVersionUID = -78259082L;
 
-    public static final QUploadFile uploadFile = new QUploadFile("uploadFile");
+    public static final QFile file = new QFile("file");
 
     public final StringPath fileOrigName = createString("fileOrigName");
 
@@ -27,16 +27,16 @@ public class QUploadFile extends EntityPathBase<UploadFile> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public QUploadFile(String variable) {
-        super(UploadFile.class, forVariable(variable));
+    public QFile(String variable) {
+        super(File.class, forVariable(variable));
     }
 
-    public QUploadFile(Path<? extends UploadFile> path) {
+    public QFile(Path<? extends File> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QUploadFile(PathMetadata metadata) {
-        super(UploadFile.class, metadata);
+    public QFile(PathMetadata metadata) {
+        super(File.class, metadata);
     }
 
 }

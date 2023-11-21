@@ -46,6 +46,10 @@ public class QCafe extends EntityPathBase<Cafe> {
 
     public final StringPath openHours = createString("openHours");
 
+    public final NumberPath<Double> rate = createNumber("rate", Double.class);
+
+    public final NumberPath<Integer> reviewCount = createNumber("reviewCount", Integer.class);
+
     public final ListPath<Review, QReview> reviews = this.<Review, QReview>createList("reviews", Review.class, QReview.class, PathInits.DIRECT2);
 
     public final StringPath roadAddress = createString("roadAddress");

@@ -184,6 +184,8 @@ public class MemberService {
     /*
         현재 로그인한 member의 마이페이지에 나타낼 정보 반환
         (member 기본 정보, 팔로우/언팔로우 수, 팔로우/언팔로우 리스트)
+
+        myPage에 follow 정보 출력
      */
     @Transactional(readOnly = true)
     public MemberProfileDto myProfileDto(Long sessionId) {
