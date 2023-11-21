@@ -12,6 +12,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -181,6 +182,9 @@ public class MemberService {
     }
 
     /*
+        현재 로그인한 member의 마이페이지에 나타낼 정보 반환
+        (member 기본 정보, 팔로우/언팔로우 수, 팔로우/언팔로우 리스트)
+
         myPage에 follow 정보 출력
      */
     @Transactional(readOnly = true)
@@ -190,34 +194,44 @@ public class MemberService {
         Member member = memberRepository.findById(sessionId).orElseThrow();
 
         int followingCount = followRepository.followingCount(sessionId);
-        int followedCount = followRepository.followingCount(sessionId);
+        int followedCount = followRepository.followedCount(sessionId);
+        List<Member> followingMemberList = followRepository.ListFollowingMembers(member);
+        List<Member> followedMemberList = followRepository.ListFollowedMembers(member);
 
         myProfileDto.setMember(member);
         myProfileDto.setFollowingCount(followingCount);
         myProfileDto.setFollowedCount(followedCount);
+        myProfileDto.setFollowingMemberList(followingMemberList);
+        myProfileDto.setFollowedMemberList(followedMemberList);
 
         return myProfileDto;
     }
 
     /*
-        memberPage에 follow 정보 출력
-        pageUserId: 해당 memberPage의 member ID
-        sessionId: 로그인되어 있는 member ID
+        다른 member의 마이페이지에 나타낼 정보 반환
+        (member 기본 정보, 팔로우/언팔로우 여부, 팔로우/언팔로우 수, 팔로우/언팔로우 리스트)
+
+        pageMemberId: 해당 페이지의 member ID
+        sessionId: 현재 로그인한 member ID
      */
     @Transactional(readOnly = true)
-    public MemberProfileDto memberProfileDto(Long pageUserId, Long sessionId) {
+    public MemberProfileDto memberProfileDto(Long pageMemberId, Long sessionId) {
         MemberProfileDto memberProfileDto = new MemberProfileDto();
 
-        Member member = memberRepository.findById(pageUserId).orElseThrow();
+        Member member = memberRepository.findById(pageMemberId).orElseThrow();
 
-        int followState = followRepository.followState(sessionId, pageUserId);
-        int followingCount = followRepository.followingCount(pageUserId);
-        int followedCount = followRepository.followingCount(pageUserId);
+        int followState = followRepository.followState(sessionId, pageMemberId);
+        int followingCount = followRepository.followingCount(pageMemberId);
+        int followedCount = followRepository.followedCount(pageMemberId);
+        List<Member> followingMemberList = followRepository.ListFollowingMembers(member);
+        List<Member> followedMemberList = followRepository.ListFollowedMembers(member);
 
         memberProfileDto.setMember(member);
-        memberProfileDto.setFollowState(followState == 1);
+        memberProfileDto.setFollowState(followState);
         memberProfileDto.setFollowingCount(followingCount);
         memberProfileDto.setFollowedCount(followedCount);
+        memberProfileDto.setFollowingMemberList(followingMemberList);
+        memberProfileDto.setFollowedMemberList(followedMemberList);
 
         return memberProfileDto;
     }
