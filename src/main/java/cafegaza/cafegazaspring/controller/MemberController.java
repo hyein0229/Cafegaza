@@ -2,7 +2,6 @@ package cafegaza.cafegazaspring.controller;
 
 import cafegaza.cafegazaspring.domain.Member;
 import cafegaza.cafegazaspring.dto.MemberProfileDto;
-import cafegaza.cafegazaspring.security.CustomMemberDetails;
 import cafegaza.cafegazaspring.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -128,19 +126,36 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
+    /*
+        현재 로그인한 member의 마이페이지에 나타낼 정보 전달
+     */
     @GetMapping("/myPage")
-    public String myProfile(Model model, @AuthenticationPrincipal CustomMemberDetails memberDetails) {
-        MemberProfileDto myProfileDto = memberService.myProfileDto(memberDetails.getId());
+    public String myProfile(Model model, @SessionAttribute(name = "sessionId", required = false) Long sessionId) {
+        MemberProfileDto myProfileDto = memberService.myProfileDto(sessionId);
         model.addAttribute("myProfileDto", myProfileDto);
 
         return "myPage";
     }
 
-//    @GetMapping("/memberPage/{pageUserId}")
-//    public String memberProfile(@PathVariable long pageUserId, Model model, @AuthenticationPrincipal MemberImpl member) {
-//        MemberProfileDto memberProfileDto = memberService.memberProfileDto(pageUserId, member.getId());
-//        model.addAttribute("memberDto", memberProfileDto);
-//
-//        return "memberPage";
-//    }
+    /*
+        다른 member의 마이페이지에 나타낼 정보 전달
+     */
+    @GetMapping("/memberPage/{pageMemberId}")
+    public String memberProfile(Model model, @PathVariable long pageMemberId, @SessionAttribute(name = "sessionId", required = false) Long sessionId) {
+        MemberProfileDto memberProfileDto = memberService.memberProfileDto(pageMemberId, sessionId);
+        model.addAttribute("memberProfileDto", memberProfileDto);
+
+        return "memberPage";
+    }
+
+    /*
+        로그아웃
+     */
+    @RequestMapping(value="/logout", method=RequestMethod.GET)
+    public String logoutMainGET(HttpServletRequest request) throws Exception {
+        HttpSession session = request.getSession();
+        session.invalidate();
+
+        return "redirect:/";
+    }
 }

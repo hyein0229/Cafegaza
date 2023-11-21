@@ -75,7 +75,37 @@
 </head>
 <body>
 <div id="wrap">
-    <div th:replace="~{fragments/header :: header}" />
+    <div id="header">
+        <div id="nav_area">
+            <nav class="navbar navbar-expand-lg navbar-light header-navbar">
+                <a class="navbar-brand" href="/">카페가자</a>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/cafe/main">카페 찾기 </a>
+                        </li>
+                        <li th:if="${#strings.isEmpty(member)}" class="nav-item active">
+                            <a class="nav-link" href="/login">로그인</a>
+                        </li>
+                        <li th:unless="${#strings.isEmpty(member)}" class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                </svg>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/bookmark">즐겨찾기</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/myPage">마이페이지</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/logout">로그아웃</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
     <div id="container">
         <div id="search_area">
             <div class="d-flex justify-content-center">
