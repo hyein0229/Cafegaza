@@ -34,10 +34,13 @@ public class SearchController {
         지도모드 열기
      */
     @GetMapping("/cafe/map")
-    public String openMapMode(Model model){
+    public String openMapMode(@SessionAttribute(name = "sessionId", required = false) Long memberId, Model model){
+        if (memberId != null) {
+            model.addAttribute("member", memberId);
+        }
+
         return "searchMap";
     }
-
 
     /**
         검색 요청이 오면 질의어에 맞는 카페 리스트를 찾아 데이터 반환 (rest api)

@@ -252,7 +252,7 @@
                         <span style="display: block; padding: 5px;">리뷰 쓰기</span>
                     </button>
                     <button th:if="${cafe.isBookmark}" th:id="'bookmark_' + ${cafe.id}" th:onclick="bookMarkToggle([[${cafe.id}]])" name="checked_bookmark" type="button" class="btn shadow-none" style="margin: 10px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className="bi bi-heart-fill" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
                         </svg>
                         <span style="display: block; padding: 5px;">담기</span>
@@ -324,7 +324,7 @@
                             <div class="modal-footer" style="margin-top: 11px; padding: 0px; height: 40px;">
                                 <div class="btn-group" role="group" aria-label="modal_btn_group" style="width: 100%;">
                                     <button type="button" class="btn shadow_none" data-dismiss="modal" style="border-right: 1px solid #dee2e6; width: 100%">확인</button>
-                                    <button type="button" class="btn shadow-none" style="width: 100%;">로그인하기</button>
+                                    <button type="button" onclick="location.href='/login';" class="btn shadow-none" style="width: 100%;">로그인하기</button>
                                 </div>
                             </div>
                         </div>
@@ -748,7 +748,6 @@
             success: function (data) {
 
                 if (data['totalElements'] == 0) { // 검색 결과가 0건이면
-                    alert('리뷰가 없습니다.');
                     return;
 
                 } else {
@@ -974,7 +973,6 @@
             success: function (data) {
 
                 if (data['totalElements'] == 0) { // 검색 결과가 0건이면
-                    alert('리뷰 사진이 없습니다.');
                     return;
 
                 } else {

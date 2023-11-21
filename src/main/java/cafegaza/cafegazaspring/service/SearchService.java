@@ -23,7 +23,6 @@ public class SearchService {
 
     private final CafeRepository cafeRepository;
     private final KakaoOpenApiManager kakaoOpenApiManager;
-    private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
 

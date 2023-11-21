@@ -19,11 +19,12 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(@SessionAttribute(name = "sessionId", required = false) Long memberId, Model model) {
-//        if(memberId == null) {
-//            return "home";
-//        }
+
+        if(memberId != null) {
+            model.addAttribute("member", memberId);
+        }
+
         List<CafeDto> popularPlaces = cafeService.getPopularPlaces();
-        model.addAttribute("member", memberId);
         model.addAttribute("popularPlaces", popularPlaces);
         return "home";
     }
