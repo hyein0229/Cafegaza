@@ -10,38 +10,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Agbalumo&display=swap" rel="stylesheet">
   <title>Cafegaza</title>
   <style>
-    #search_area {
-      margin-top: 100px;
+    html, body {
+      height: 100%
     }
-    .search_btn, .search_btn:hover{
-      width: 50px;
-      border: none;
-    }
-    .search_input {
-      padding: 0.5rem !important;
-      margin-bottom: 1rem !important;
+
+    .wrap {
+      background-color: #F8F8F8;
+      min-height: 100%;
       position: relative;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: stretch;
-      width: 750px;
-      height: 65px;
-      border-radius: 30px;
-      border: 2px double #6c757d;
-      background-color: white;
-      box-sizing: border-box;
+      padding-bottom: 60px;
     }
 
-    .list_wrap {
-      display: flex;
-      justify-content: center;
-    }
-
-    .list_card {
-      width: 15rem;
-      display: inline-block;
-      border-radius: 50px;
-      margin: 3px;
+    .footer {
+      position: relative; (absolute -> relative)
+      transform: translatY(-100%);
     }
 
     #place .imagebg {
@@ -67,6 +49,7 @@
       padding: 0;
       margin: 0;
     }
+
     div{
       box-sizing: border-box;
     }
@@ -81,10 +64,6 @@
       position: absolute;
       top: -5px;
       left: 110%;
-    }
-
-    .wrap{
-      background-color: #F8F8F8;
     }
 
     .nicknameContainer{
@@ -176,8 +155,6 @@
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="/bookmark">즐겨찾기</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/myPage">마이페이지</a>
-                <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="/logout">로그아웃</a>
               </div>
             </li>
@@ -256,8 +233,8 @@
       <div>찜한카페</div>
     </div>
   </div>
-
 </div>
+<div class="footer" th:replace="~{fragments/footer :: footer}" />
 
 <script th:inline="javascript">
   function follow() {
