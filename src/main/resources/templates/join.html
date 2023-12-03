@@ -10,6 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Agbalumo&display=swap" rel="stylesheet">
     <title>Cafegaza</title>
     <style>
+        html, body {
+            height: 100%
+        }
+
+        .wrap {
+            background-color: #F8F8F8;
+            min-height: 100%;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        .footer {
+            position: relative; (absolute -> relative)
+            transform: translatY(-100%);
+        }
 
         .join-div {
             width: 100vw;
@@ -82,35 +97,37 @@
     </style>
 </head>
 <body>
+<div class="wrap">
+    <div class="join-div">
+        <form class="join-form" id="joinForm" onsubmit="return false;" autocomplete="off">
 
-<div class="join-div">
-    <form class="join-form" id="joinForm" onsubmit="return false;" autocomplete="off">
+            <h2 style=" font-size: 55px; font-family: 'Agbalumo';">Cafegaza</h2>
+            <div style="margin-top: 40px"></div>
 
-        <h2 style=" font-size: 55px; font-family: 'Agbalumo';">Cafegaza</h2>
-        <div style="margin-top: 40px"></div>
+            <input class="for-join-box" type="text" id="id" name="id" placeholder="아이디" title="아이디" />
+            <div style="margin-top: 10px"></div>
 
-        <input class="for-join-box" type="text" id="id" name="id" placeholder="아이디" title="아이디" />
-        <div style="margin-top: 10px"></div>
+            <input class="for-join-box" type="password" id="password" name="password" title="비밀번호" placeholder="비밀번호" />
+            <div style="margin-top: 10px"></div>
 
-        <input class="for-join-box" type="password" id="password" name="password" title="비밀번호" placeholder="비밀번호" />
-        <div style="margin-top: 10px"></div>
+            <input class="for-join-box" type="text" id="nickname" name="nickname" placeholder="닉네임" title="닉네임" />
+            <div style="margin-top: 10px"></div>
 
-        <input class="for-join-box" type="text" id="nickname" name="nickname" placeholder="닉네임" title="닉네임" />
-        <div style="margin-top: 10px"></div>
+            <input class="for-join-box" type="text" id="email" name="email" placeholder="이메일" title="이메일" />
+            <div style="margin-top: 5px"></div>
+            <button type="button" onclick="emailSend();" class="for-join-box">인증번호 전송</button>
+            <div style="margin-top: 5px"></div>
 
-        <input class="for-join-box" type="text" id="email" name="email" placeholder="이메일" title="이메일" />
-        <div style="margin-top: 5px"></div>
-        <button type="button" onclick="emailSend();" class="for-join-box">인증번호 전송</button>
-        <div style="margin-top: 5px"></div>
+            <input class="for-join-box" type="text" id="emailAuthText" name="emailAuthText" placeholder="이메일인증번호" title="이메일인증번호" />
+            <div style="margin-top: 5px"></div>
+            <button type="button" onclick="emailAuth();" class="for-join-box">이메일인증</button>
+            <div style="margin-top: 40px"></div>
 
-        <input class="for-join-box" type="text" id="emailAuthText" name="emailAuthText" placeholder="이메일인증번호" title="이메일인증번호" />
-        <div style="margin-top: 5px"></div>
-        <button type="button" onclick="emailAuth();" class="for-join-box">이메일인증</button>
-        <div style="margin-top: 40px"></div>
-
-        <button style="background-color: darkgrey" type="button" onclick="join();" class="for-join-box">회원가입</button>
-    </form>
+            <button style="background-color: darkgrey" type="button" onclick="join();" class="for-join-box">회원가입</button>
+        </form>
+    </div>
 </div>
+<div class="footer" th:replace="~{fragments/footer :: footer}" />
 
 <script>
     function emailSend() {

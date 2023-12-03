@@ -10,6 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Agbalumo&display=swap" rel="stylesheet">
     <title>Cafegaza</title>
     <style>
+        html, body {
+            height: 100%
+        }
+
+        .wrap {
+            background-color: #F8F8F8;
+            min-height: 100%;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        .footer {
+            position: relative; (absolute -> relative)
+        transform: translatY(-100%);
+        }
 
         .login-div {
             width: 100vw;
@@ -82,24 +97,26 @@
     </style>
 </head>
 <body>
+<div class="wrap">
+    <div class="login-div">
+        <form class="login-form" id="loginForm" onsubmit="return false;" autocomplete="off">
 
-<div class="login-div">
-    <form class="login-form" id="loginForm" onsubmit="return false;" autocomplete="off">
+            <h2 style=" font-size: 55px; font-family: 'Agbalumo';">Cafegaza</h2>
+            <div style="margin-top: 40px"></div>
 
-        <h2 style=" font-size: 55px; font-family: 'Agbalumo';">Cafegaza</h2>
-        <div style="margin-top: 40px"></div>
+            <input class="for-login-box" type="text" id="memberId" name="memberId" placeholder="아이디" title="아이디" />
+            <div style="margin-top: 10px"></div>
 
-        <input class="for-login-box" type="text" id="memberId" name="memberId" placeholder="아이디" title="아이디" />
-        <div style="margin-top: 10px"></div>
+            <input class="for-login-box" type="password" id="memberPassword" name="memberPassword" title="비밀번호" placeholder="비밀번호" />
+            <div style="margin-top: 20px"></div>
 
-        <input class="for-login-box" type="password" id="memberPassword" name="memberPassword" title="비밀번호" placeholder="비밀번호" />
-        <div style="margin-top: 20px"></div>
-
-        <button type="button" onclick="login();" class="for-login-box">로그인</button>
-        <div style="margin-top: 50px"></div>
-        <button type="button"onclick="join();" class="for-login-box">회원가입</button>
-    </form>
+            <button type="button" onclick="login();" class="for-login-box">로그인</button>
+            <div style="margin-top: 50px"></div>
+            <button type="button"onclick="join();" class="for-login-box">회원가입</button>
+        </form>
+    </div>
 </div>
+<div class="footer" th:replace="~{fragments/footer :: footer}" />
 
 <script>
     function login() {
